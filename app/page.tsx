@@ -6,6 +6,7 @@ import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { CountdownTimer } from "@/app/components/CountdownTimer";
+import { RunnerGraphic } from "@/app/components/RunnerGraphic";
 import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
@@ -24,6 +25,9 @@ export default function Home() {
             className="absolute -left-32 bottom-0 h-64 w-64 -rotate-12 bg-lime/90 sm:h-80 sm:w-80"
             speed={-0.08}
           />
+          <div className="animate-float absolute right-6 bottom-6 hidden w-40 text-lime/90 sm:block sm:w-56 lg:right-16 lg:w-64">
+            <RunnerGraphic className="h-auto w-full" />
+          </div>
           <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
             <Reveal delay={100}>
               <h1 className="font-display text-6xl leading-[0.82] tracking-normal sm:text-8xl">
@@ -66,7 +70,17 @@ export default function Home() {
                 </div>
               </dl>
             </Reveal>
-            <Reveal delay={400}>
+            <Reveal delay={350}>
+              <div className="mt-10">
+                <p className="font-display text-sm tracking-[0.3em] text-orange">
+                  REGISTRATION CLOSES IN
+                </p>
+                <div className="mt-4">
+                  <CountdownTimer targetIso={EVENT.registrationCloseAt} />
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={450}>
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href="/daftar"
@@ -86,18 +100,6 @@ export default function Home() {
         </section>
 
         <MarqueeBanner text={TICKER_TEXT} />
-
-        {/* Countdown */}
-        <section className="bg-navy py-14 text-center text-cream sm:py-16">
-          <Reveal>
-            <p className="font-display text-sm tracking-[0.3em] text-orange">
-              REGISTRATION CLOSES IN
-            </p>
-            <div className="mt-6">
-              <CountdownTimer targetIso={EVENT.registrationCloseAt} />
-            </div>
-          </Reveal>
-        </section>
 
         {/* Categories */}
         <section id="kategori" className="bg-navy py-16 text-cream sm:py-24">
