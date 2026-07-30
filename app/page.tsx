@@ -5,8 +5,73 @@ import { Reveal } from "@/app/components/Reveal";
 import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
+import { Eyebrow } from "@/app/components/Eyebrow";
 import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
+
+const HOW_IT_WORKS = [
+  {
+    title: "Register",
+    description: "Fill in your details and add as many participants as you like in a single form.",
+  },
+  {
+    title: "Pay & Upload Proof",
+    description: "Transfer the total shown (unique code included) and upload your payment proof.",
+  },
+  {
+    title: "Get Your QR",
+    description: "Receive a group QR code instantly, plus a full PDF sent straight to your email.",
+  },
+  {
+    title: "Race Day",
+    description: "Show your QR code at the venue to collect your race pack and start running.",
+  },
+];
+
+const RACE_DAY_TIMELINE = [
+  {
+    time: EVENT.gatesOpen,
+    title: "Gathering & Race Pack Collection",
+    description: "Arrive, check in with your QR code, and collect your jersey and race pack.",
+  },
+  {
+    time: EVENT.gatesOpen,
+    title: "Flag Off",
+    description: "Everyone starts together — walk it, jog it, or run it, at your own pace.",
+  },
+  {
+    time: "Anytime after",
+    title: "Finish & Celebration",
+    description: "Cross the line for your medal, then stay for refreshments and entertainment.",
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "Is this a competitive race?",
+    a: "Not at all! Paulus Fun Run is fun and non-competitive — there's no clock to beat and no pressure. Walk it, jog it, or run it, and enjoy the morning at whatever pace feels good.",
+  },
+  {
+    q: "Is registration paid?",
+    a: `Yes. The ${CATEGORY_INFO[0].code} category is ${formatIDR(CATEGORY_INFO[0].price)} and ${CATEGORY_INFO[1].code} is ${formatIDR(CATEGORY_INFO[1].price)}, including a race pack (jersey & BIB number), refreshments, medal, and entertainment.`,
+  },
+  {
+    q: "Can I register more than one person?",
+    a: "Yes. When filling out the form, you can add multiple participants at once (for example, your whole family). Each participant still gets their own BIB number, and you'll receive one QR code for your group registration.",
+  },
+  {
+    q: "What's the QR code for?",
+    a: "The QR code is proof of your group's registration. When scanned by the committee on race day, all participants in your group will appear instantly for race pack collection.",
+  },
+  {
+    q: "What should I bring on race day?",
+    a: "Comfortable shoes and a water bottle are all you really need — your race pack (jersey, BIB, and everything else) is already covered.",
+  },
+  {
+    q: "When does registration close?",
+    a: `Registration is open from ${EVENT.registrationOpen} to ${EVENT.registrationClose}, or earlier if slots run out.`,
+  },
+];
 
 export default function Home() {
   return (
@@ -23,9 +88,20 @@ export default function Home() {
             className="absolute -left-32 bottom-0 h-64 w-64 -rotate-12 bg-lime/90 sm:h-80 sm:w-80"
             speed={-0.08}
           />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -right-6 -top-6 select-none font-display text-[9rem] leading-none text-cream/5 sm:text-[14rem]"
+          >
+            26
+          </span>
           <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
+            <Reveal>
+              <span className="inline-flex items-center gap-2 rounded-full border border-lime/40 bg-lime/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-lime sm:text-sm">
+                2.5K &amp; 5K · NON-COMPETITIVE
+              </span>
+            </Reveal>
             <Reveal delay={100}>
-              <h1 className="font-display text-6xl leading-[0.82] tracking-normal sm:text-8xl">
+              <h1 className="font-display mt-5 text-6xl leading-[0.82] tracking-normal sm:text-8xl">
                 <span className="block text-orange">PAULUS</span>
                 <span className="block">
                   FUN <span className="text-lime">RUN</span>
@@ -84,11 +160,27 @@ export default function Home() {
           </div>
         </section>
 
+        {/* About / Mission */}
+        <section className="bg-cream py-16 sm:py-24">
+          <div className="mx-auto max-w-4xl px-5 text-center">
+            <Reveal>
+              <Eyebrow index="—" label="WHY WE RUN" className="justify-center text-orange" />
+            </Reveal>
+            <Reveal delay={100}>
+              <p className="font-display mt-6 text-3xl leading-tight text-navy sm:text-5xl">
+                A morning to move together — no finish-line pressure, just faith, family, and a
+                whole lot of fun.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
         {/* Categories */}
         <section id="kategori" className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-6xl px-5">
             <Reveal>
-              <h2 className="font-display text-4xl sm:text-5xl">
+              <Eyebrow index="01" label="CATEGORIES" className="text-lime" />
+              <h2 className="font-display mt-4 text-4xl sm:text-5xl">
                 Choose Your <span className="text-lime">Category</span>
               </h2>
             </Reveal>
@@ -111,12 +203,36 @@ export default function Home() {
           </div>
         </section>
 
+        {/* How It Works */}
+        <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
+          <Reveal>
+            <Eyebrow index="02" label="HOW IT WORKS" className="text-orange" />
+            <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
+              Four Steps To Race Day
+            </h2>
+          </Reveal>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {HOW_IT_WORKS.map((step, i) => (
+              <Reveal key={step.title} delay={i * 100}>
+                <div className="h-full rounded-2xl border border-navy/10 bg-white p-6">
+                  <p className="font-display text-5xl text-lime-dark">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <p className="font-display mt-3 text-xl text-navy">{step.title}</p>
+                  <p className="mt-2 text-sm text-navy/70">{step.description}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
         <MarqueeBanner text={TICKER_TEXT} />
 
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <h2 className="font-display text-4xl text-navy sm:text-5xl">
+            <Eyebrow index="03" label="WHAT YOU'LL GET" className="text-orange" />
+            <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               What You&apos;ll <span className="text-orange">Get</span>
             </h2>
             <p className="mt-3 max-w-xl text-navy/70">
@@ -142,38 +258,35 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Race Day Timeline */}
+        <section className="bg-navy py-16 text-cream sm:py-24">
+          <div className="mx-auto max-w-4xl px-5">
+            <Reveal>
+              <Eyebrow index="04" label="RACE DAY" className="text-lime" />
+              <h2 className="font-display mt-4 text-4xl sm:text-5xl">What To Expect</h2>
+            </Reveal>
+            <div className="mt-12 space-y-8 border-l-2 border-cream/20 pl-8">
+              {RACE_DAY_TIMELINE.map((item, i) => (
+                <Reveal key={item.title} delay={i * 100}>
+                  <p className="font-display text-lime">{item.time}</p>
+                  <p className="mt-1 text-xl font-semibold">{item.title}</p>
+                  <p className="mt-1 text-cream/70">{item.description}</p>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section id="faq" className="mx-auto max-w-4xl px-5 py-16 sm:py-24">
           <Reveal>
-            <h2 className="font-display text-4xl text-navy sm:text-5xl">FAQ</h2>
+            <Eyebrow index="05" label="FAQ" className="text-orange" />
+            <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
+              Frequently Asked Questions
+            </h2>
           </Reveal>
           <div className="mt-8 divide-y divide-navy/10 border-t border-navy/10">
-            {[
-              {
-                q: "Is this a competitive race?",
-                a: "Not at all! Paulus Fun Run is fun and non-competitive — there's no clock to beat and no pressure. Walk it, jog it, or run it, and enjoy the morning at whatever pace feels good.",
-              },
-              {
-                q: "Is registration paid?",
-                a: `Yes. The ${CATEGORY_INFO[0].code} category is ${formatIDR(CATEGORY_INFO[0].price)} and ${CATEGORY_INFO[1].code} is ${formatIDR(CATEGORY_INFO[1].price)}, including a race pack (jersey & BIB number), refreshments, medal, and entertainment.`,
-              },
-              {
-                q: "Can I register more than one person?",
-                a: "Yes. When filling out the form, you can add multiple participants at once (for example, your whole family). Each participant still gets their own BIB number, and you'll receive one QR code for your group registration.",
-              },
-              {
-                q: "What's the QR code for?",
-                a: "The QR code is proof of your group's registration. When scanned by the committee on race day, all participants in your group will appear instantly for race pack collection.",
-              },
-              {
-                q: "What should I bring on race day?",
-                a: "Comfortable shoes and a water bottle are all you really need — your race pack (jersey, BIB, and everything else) is already covered.",
-              },
-              {
-                q: "When does registration close?",
-                a: `Registration is open from ${EVENT.registrationOpen} to ${EVENT.registrationClose}, or earlier if slots run out.`,
-              },
-            ].map((item, i) => (
+            {FAQ_ITEMS.map((item, i) => (
               <Reveal key={item.q} delay={i * 60}>
                 <details className="group py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-navy">

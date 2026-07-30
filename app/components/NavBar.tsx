@@ -1,10 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { hasLogo } from "@/lib/has-logo";
+import { ScrollShadowHeader } from "@/app/components/ScrollShadowHeader";
 
 export function NavBar() {
   return (
-    <header className="sticky top-0 z-50 bg-navy text-cream">
+    <ScrollShadowHeader>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
         <Link href="/" className="flex items-center">
           {hasLogo() && (
@@ -32,6 +33,6 @@ export function NavBar() {
           </Link>
         </nav>
       </div>
-    </header>
+    </ScrollShadowHeader>
   );
 }

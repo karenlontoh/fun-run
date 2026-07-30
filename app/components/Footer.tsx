@@ -11,11 +11,20 @@ export function Footer() {
           {EVENT.address}.
         </p>
         <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-cream/80">
-          <span>{EVENT.contactEmail}</span>
+          <a href={`mailto:${EVENT.contactEmail}`} className="hover:text-lime">
+            {EVENT.contactEmail}
+          </a>
           <span>{EVENT.contactPhone}</span>
-          <span>Instagram {EVENT.instagram}</span>
+          <a
+            href={`https://instagram.com/${EVENT.instagram.replace("@", "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-lime"
+          >
+            Instagram {EVENT.instagram}
+          </a>
         </div>
-        <p className="mt-8 text-xs text-cream/50">
+        <p className="mt-8 border-t border-cream/10 pt-6 text-xs text-cream/50">
           © {new Date().getFullYear()} {EVENT.church}. All rights reserved.
         </p>
       </div>
