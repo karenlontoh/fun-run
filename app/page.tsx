@@ -4,7 +4,9 @@ import { Footer } from "@/app/components/Footer";
 import { Reveal } from "@/app/components/Reveal";
 import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
-import { EVENT, CATEGORY_INFO, BENEFITS } from "@/lib/event-config";
+import { MarqueeBanner } from "@/app/components/MarqueeBanner";
+import { CountdownTimer } from "@/app/components/CountdownTimer";
+import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
 export default function Home() {
@@ -36,9 +38,10 @@ export default function Home() {
                 {EVENT.tagline.toUpperCase()}
               </p>
               <p className="mt-4 max-w-xl text-base text-cream/90 sm:text-lg">
-                Two distances, one big celebration. Whether you&apos;re taking the 2.5K or pushing
-                for the 5K, join the {EVENT.church} community for a morning of movement, faith,
-                and fun — complete with an exclusive jersey and full race pack for every runner.
+                Two distances, one big celebration, zero pressure. Whether you&apos;re taking the
+                2.5K or pushing for the 5K, this is a fun, non-competitive run — walk it, jog it,
+                or run it. Join the {EVENT.church} community for a morning of movement, faith, and
+                fun, with an exclusive jersey and full race pack for every runner.
               </p>
             </Reveal>
             <Reveal delay={300}>
@@ -82,6 +85,20 @@ export default function Home() {
           </div>
         </section>
 
+        <MarqueeBanner text={TICKER_TEXT} />
+
+        {/* Countdown */}
+        <section className="bg-navy py-14 text-center text-cream sm:py-16">
+          <Reveal>
+            <p className="font-display text-sm tracking-[0.3em] text-orange">
+              REGISTRATION CLOSES IN
+            </p>
+            <div className="mt-6">
+              <CountdownTimer targetIso={EVENT.registrationCloseAt} />
+            </div>
+          </Reveal>
+        </section>
+
         {/* Categories */}
         <section id="kategori" className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-6xl px-5">
@@ -115,12 +132,22 @@ export default function Home() {
             <h2 className="font-display text-4xl text-navy sm:text-5xl">
               What You&apos;ll <span className="text-orange">Get</span>
             </h2>
+            <p className="mt-3 max-w-xl text-navy/70">
+              This isn&apos;t a race against the clock — it&apos;s a celebration on foot. Every
+              runner, no matter the pace, walks away with:
+            </p>
           </Reveal>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {BENEFITS.map((b, i) => (
               <Reveal key={b.title} delay={i * 100}>
                 <TiltCard className="h-full rounded-2xl border border-navy/10 bg-white p-6 shadow-sm">
-                  <p className="font-display text-2xl text-orange">{b.title}</p>
+                  <span
+                    className="animate-float inline-block text-4xl"
+                    style={{ animationDelay: `${i * 0.3}s` }}
+                  >
+                    {b.icon}
+                  </span>
+                  <p className="font-display mt-3 text-2xl text-orange">{b.title}</p>
                   <p className="mt-2 text-sm text-navy/70">{b.description}</p>
                 </TiltCard>
               </Reveal>
@@ -136,6 +163,10 @@ export default function Home() {
           <div className="mt-8 divide-y divide-navy/10 border-t border-navy/10">
             {[
               {
+                q: "Is this a competitive race?",
+                a: "Not at all! Paulus Fun Run is fun and non-competitive — there's no clock to beat and no pressure. Walk it, jog it, or run it, and enjoy the morning at whatever pace feels good.",
+              },
+              {
                 q: "Is registration paid?",
                 a: `Yes. The ${CATEGORY_INFO[0].code} category is ${formatIDR(CATEGORY_INFO[0].price)} and ${CATEGORY_INFO[1].code} is ${formatIDR(CATEGORY_INFO[1].price)}, including a race pack (jersey & BIB number), refreshments, medal, and entertainment.`,
               },
@@ -146,6 +177,10 @@ export default function Home() {
               {
                 q: "What's the QR code for?",
                 a: "The QR code is proof of your group's registration. When scanned by the committee on race day, all participants in your group will appear instantly for race pack collection.",
+              },
+              {
+                q: "What should I bring on race day?",
+                a: "Comfortable shoes and a water bottle are all you really need — your race pack (jersey, BIB, and everything else) is already covered.",
               },
               {
                 q: "When does registration close?",

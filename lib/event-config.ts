@@ -10,6 +10,8 @@ export const EVENT = {
   address: "Jl. Taman Sunda Kelapa No. 12",
   registrationOpen: "9 August 2026",
   registrationClose: "20 September 2026",
+  // ISO datetime (with timezone) registration actually closes at — used by the countdown timer.
+  registrationCloseAt: "2026-09-20T23:59:59+07:00",
   contactEmail: "funrun@gpibpaulusjakarta.org",
   contactPhone: "0812-3456-7890",
   instagram: "@paulusfunrun",
@@ -42,8 +44,27 @@ export const CATEGORY_INFO = [
 ] as const;
 
 export const BENEFITS = [
-  { title: "Race Pack", description: "Exclusive jersey & BIB number" },
-  { title: "Refreshment", description: "Drinks & snacks after the run" },
-  { title: "Medal", description: "Finisher medal for every participant" },
-  { title: "Entertainment", description: "Live entertainment at the venue" },
+  {
+    icon: "👕",
+    title: "Race Pack",
+    description: "An exclusive jersey and your own BIB number — yours to keep after the finish line.",
+  },
+  {
+    icon: "🥤",
+    title: "Refreshment",
+    description: "Water, snacks, and drinks waiting for you, no matter how long you take to get there.",
+  },
+  {
+    icon: "🏅",
+    title: "Medal",
+    description: "Cross the finish line at any pace and a medal is yours. Walking counts too.",
+  },
+  {
+    icon: "🎉",
+    title: "Entertainment",
+    description: "Music, games, and good vibes all morning — hang around after you're done.",
+  },
 ] as const;
+
+// Repeated in the scrolling marquee banner on the landing page.
+export const TICKER_TEXT = "PAULUS FUN RUN  ·  2.5K – 5K  ·  GPIB PAULUS JAKARTA  ·  17 OCTOBER 2026  ";
