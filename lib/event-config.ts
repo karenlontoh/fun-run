@@ -64,5 +64,6 @@ export const BENEFITS = [
   },
 ] as const;
 
-// Repeated in the scrolling marquee banner on the landing page.
+// Repeated in the two crossing marquee bands on the landing page.
 export const TICKER_TEXT = "PAULUS FUN RUN · 2.5K · 5K · GPIB PAULUS JAKARTA · 17 OCTOBER 2026";
+export const TICKER_TEXT_SECONDARY = "FAITH · FUN · FINISH · FUN & NON-COMPETITIVE · ALL WELCOME";

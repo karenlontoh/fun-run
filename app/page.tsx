@@ -8,7 +8,7 @@ import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { RunnerGraphic } from "@/app/components/RunnerGraphic";
 import { ScrollCue } from "@/app/components/ScrollCue";
 import { SectionDivider } from "@/app/components/SectionDivider";
-import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
+import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT, TICKER_TEXT_SECONDARY } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
 export default function Home() {
@@ -118,8 +118,13 @@ export default function Home() {
           </div>
         </section>
 
-        <MarqueeBanner text={TICKER_TEXT} />
-        <SectionDivider base="bg-orange" wedge="bg-cream" />
+        <div className="relative py-3">
+          <MarqueeBanner text={TICKER_TEXT} color="orange" skewDeg={-2} />
+          <div className="-mt-7 sm:-mt-9">
+            <MarqueeBanner text={TICKER_TEXT_SECONDARY} color="lime" reverse skewDeg={2} />
+          </div>
+        </div>
+        <SectionDivider base="bg-lime" wedge="bg-cream" />
 
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">

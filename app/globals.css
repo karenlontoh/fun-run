@@ -51,8 +51,13 @@ body {
   animation: marquee 55s linear infinite;
 }
 
+.animate-marquee-reverse {
+  animation: marquee 55s linear infinite reverse;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
+  .animate-marquee,
+  .animate-marquee-reverse {
     animation-play-state: paused;
   }
 }
@@ -97,7 +102,8 @@ body {
 }
 
 .animate-run-bounce {
-  transform-origin: 140px 130px;
+  transform-box: fill-box;
+  transform-origin: center;
   animation: run-bounce 0.7s ease-in-out infinite;
 }
 
