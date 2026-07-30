@@ -12,19 +12,19 @@ import { formatIDR } from "@/lib/pricing";
 const HOW_IT_WORKS = [
   {
     title: "Register",
-    description: "Fill in your details and add as many participants as you like in a single form.",
-  },
-  {
-    title: "Pay & Upload Proof",
-    description: "Transfer the total shown (unique code included) and upload your payment proof.",
+    description: "Fill in your details, add participants, and upload your payment proof — all in one form.",
   },
   {
     title: "Get Your QR",
     description: "Receive a group QR code instantly, plus a full PDF sent straight to your email.",
   },
   {
+    title: "Race Pack Collection",
+    description: "Show your QR code at the venue to collect your jersey and race pack.",
+  },
+  {
     title: "Race Day",
-    description: "Show your QR code at the venue to collect your race pack and start running.",
+    description: "Join everyone at the start line and enjoy the run at your own pace.",
   },
 ];
 
@@ -35,7 +35,7 @@ const RACE_DAY_TIMELINE = [
     description: "Arrive, check in with your QR code, and collect your jersey and race pack.",
   },
   {
-    time: EVENT.gatesOpen,
+    time: EVENT.time.split("—")[0].trim(),
     title: "Flag Off",
     description: "Everyone starts together — walk it, jog it, or run it, at your own pace.",
   },
@@ -95,13 +95,8 @@ export default function Home() {
             26
           </span>
           <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
-            <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-lime/40 bg-lime/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-lime sm:text-sm">
-                2.5K &amp; 5K · NON-COMPETITIVE
-              </span>
-            </Reveal>
             <Reveal delay={100}>
-              <h1 className="font-display mt-5 text-6xl leading-[0.82] tracking-normal sm:text-8xl">
+              <h1 className="font-display text-6xl leading-[0.82] tracking-normal sm:text-8xl">
                 <span className="block text-orange">PAULUS</span>
                 <span className="block">
                   FUN <span className="text-lime">RUN</span>
@@ -145,32 +140,17 @@ export default function Home() {
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href="/daftar"
-                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition hover:bg-orange-dark"
+                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
                 >
                   REGISTER NOW
                 </Link>
                 <a
                   href="#kategori"
-                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition hover:bg-cream hover:text-navy"
+                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-cream hover:text-navy active:translate-y-0 active:scale-100"
                 >
                   VIEW CATEGORIES
                 </a>
               </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* About / Mission */}
-        <section className="bg-cream py-16 sm:py-24">
-          <div className="mx-auto max-w-4xl px-5 text-center">
-            <Reveal>
-              <Eyebrow index="—" label="WHY WE RUN" className="justify-center text-orange" />
-            </Reveal>
-            <Reveal delay={100}>
-              <p className="font-display mt-6 text-3xl leading-tight text-navy sm:text-5xl">
-                A morning to move together — no finish-line pressure, just faith, family, and a
-                whole lot of fun.
-              </p>
             </Reveal>
           </div>
         </section>
@@ -203,6 +183,8 @@ export default function Home() {
           </div>
         </section>
 
+        <MarqueeBanner text={TICKER_TEXT} />
+
         {/* How It Works */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
@@ -214,19 +196,17 @@ export default function Home() {
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {HOW_IT_WORKS.map((step, i) => (
               <Reveal key={step.title} delay={i * 100}>
-                <div className="h-full rounded-2xl border border-navy/10 bg-white p-6">
+                <TiltCard className="h-full rounded-2xl border border-navy/10 bg-white p-6">
                   <p className="font-display text-5xl text-lime-dark">
                     {String(i + 1).padStart(2, "0")}
                   </p>
                   <p className="font-display mt-3 text-xl text-navy">{step.title}</p>
                   <p className="mt-2 text-sm text-navy/70">{step.description}</p>
-                </div>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
         </section>
-
-        <MarqueeBanner text={TICKER_TEXT} />
 
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
@@ -307,7 +287,7 @@ export default function Home() {
             <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
             <Link
               href="/daftar"
-              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream transition hover:bg-navy-light"
+              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
             >
               REGISTER NOW
             </Link>
