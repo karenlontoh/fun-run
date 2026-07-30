@@ -51,13 +51,8 @@ body {
   animation: marquee 55s linear infinite;
 }
 
-.animate-marquee-reverse {
-  animation: marquee 55s linear infinite reverse;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee,
-  .animate-marquee-reverse {
+  .animate-marquee {
     animation-play-state: paused;
   }
 }
@@ -79,55 +74,6 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-float {
-    animation: none;
-  }
-}
-
-/* Running figure: a bouncy stride cadence + trailing speed streaks, so the
-   hero's runner reads as mid-motion instead of a static icon. */
-@keyframes run-bounce {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(-2px, -7px) rotate(-4deg);
-  }
-  50% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  75% {
-    transform: translate(2px, -5px) rotate(4deg);
-  }
-}
-
-.animate-run-bounce {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: run-bounce 0.7s ease-in-out infinite;
-}
-
-@keyframes run-streak {
-  0%,
-  100% {
-    opacity: 0.15;
-    transform: translateX(6px) scaleX(0.7);
-  }
-  50% {
-    opacity: 0.65;
-    transform: translateX(-6px) scaleX(1);
-  }
-}
-
-.animate-run-streak {
-  transform-box: fill-box;
-  transform-origin: right center;
-  animation: run-streak 0.7s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-run-bounce,
-  .animate-run-streak {
     animation: none;
   }
 }

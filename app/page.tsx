@@ -5,10 +5,8 @@ import { Reveal } from "@/app/components/Reveal";
 import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
-import { RunnerGraphic } from "@/app/components/RunnerGraphic";
-import { ScrollCue } from "@/app/components/ScrollCue";
 import { SectionDivider } from "@/app/components/SectionDivider";
-import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT, TICKER_TEXT_SECONDARY } from "@/lib/event-config";
+import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
 export default function Home() {
@@ -26,9 +24,6 @@ export default function Home() {
             className="absolute -left-32 bottom-0 h-64 w-64 -rotate-12 bg-lime/90 sm:h-80 sm:w-80"
             speed={-0.08}
           />
-          <div className="absolute right-6 bottom-16 hidden w-36 text-lime sm:block sm:w-48 sm:right-10 lg:right-20 lg:w-60">
-            <RunnerGraphic className="h-auto w-full drop-shadow-[0_8px_24px_rgba(0,0,0,0.25)]" />
-          </div>
           <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
             <Reveal delay={100}>
               <h1 className="font-display text-6xl leading-[0.82] tracking-normal sm:text-8xl">
@@ -87,7 +82,6 @@ export default function Home() {
                 </a>
               </div>
             </Reveal>
-            <ScrollCue className="mt-16 hidden sm:flex" />
           </div>
         </section>
 
@@ -118,13 +112,8 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="relative py-3">
-          <MarqueeBanner text={TICKER_TEXT} color="orange" skewDeg={-2} />
-          <div className="-mt-7 sm:-mt-9">
-            <MarqueeBanner text={TICKER_TEXT_SECONDARY} color="lime" reverse skewDeg={2} />
-          </div>
-        </div>
-        <SectionDivider base="bg-lime" wedge="bg-cream" />
+        <MarqueeBanner text={TICKER_TEXT} />
+        <SectionDivider base="bg-orange" wedge="bg-cream" />
 
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
