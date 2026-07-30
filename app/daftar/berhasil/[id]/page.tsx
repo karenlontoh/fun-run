@@ -52,8 +52,10 @@ export default async function RegistrationSuccessPage({
             See You on Race Day!
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-navy/70">
-            Save or screenshot the QR code below. Show this QR code when collecting your race pack
-            — all participants in this group will appear instantly.
+            A PDF with your group QR code and a personal QR code for each participant has been
+            sent to <span className="font-semibold text-navy">{registration.contact_email}</span>.
+            Show the group QR at check-in, or use each participant&apos;s personal QR if your
+            group is arriving separately.
           </p>
 
           <div className="mx-auto mt-10 w-fit rounded-3xl border border-navy/10 bg-white p-8 shadow-sm">
@@ -61,11 +63,10 @@ export default async function RegistrationSuccessPage({
             <img src={qrDataUrl} alt="Registration QR code" width={240} height={240} className="mx-auto" />
             <p className="mt-4 text-xs text-navy/50">Registration ID: {id}</p>
             <a
-              href={qrDataUrl}
-              download={`paulus-fun-run-${id}.png`}
+              href={`/api/registrations/${id}/pdf`}
               className="mt-4 inline-block rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
             >
-              Download QR Code
+              Download PDF (Group + Personal QR Codes)
             </a>
           </div>
 
@@ -75,19 +76,12 @@ export default async function RegistrationSuccessPage({
               {(participants ?? []).map((p) => (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between rounded-xl border border-navy/10 bg-white px-5 py-4"
+                  className="rounded-xl border border-navy/10 bg-white px-5 py-4"
                 >
-                  <div>
-                    <p className="font-semibold text-navy">{p.full_name}</p>
-                    <p className="text-sm text-navy/60">
-                      {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey{" "}
-                      {p.jersey_size}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-navy/50">BIB</p>
-                    <p className="font-display text-2xl text-orange">{p.bib_number}</p>
-                  </div>
+                  <p className="font-semibold text-navy">{p.full_name}</p>
+                  <p className="text-sm text-navy/60">
+                    {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey {p.jersey_size}
+                  </p>
                 </div>
               ))}
             </div>

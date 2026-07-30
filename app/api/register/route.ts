@@ -2,7 +2,17 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { uploadPaymentProof } from "@/lib/storage";
 import { calculateTotal } from "@/lib/pricing";
-import { CATEGORIES, JERSEY_SIZES, type Category, type JerseySize, type RegisterPayload } from "@/lib/types";
+import { generateRegistrationPdf } from "@/lib/pdf";
+import { sendRegistrationEmail } from "@/lib/email";
+import {
+  CATEGORIES,
+  JERSEY_SIZES,
+  type Category,
+  type JerseySize,
+  type Participant,
+  type Registration,
+  type RegisterPayload,
+} from "@/lib/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -168,6 +178,39 @@ export async function POST(request: Request) {
     bib_number: row.bib_number,
     full_name: row.full_name,
   }));
+
+  try {
+    const { data: fullParticipants } = await supabaseServer
+      .from("participants")
+      .select("*")
+      .eq("registration_id", registrationId)
+      .order("bib_number", { ascending: true })
+      .returns<Participant[]>();
+
+    const registration: Registration = {
+      id: registrationId,
+      created_at: new Date().toISOString(),
+      contact_name,
+      contact_email,
+      contact_phone,
+      total_amount: totalAmount,
+      payment_proof_path: proofPath,
+    };
+
+    const pdfBuffer = await generateRegistrationPdf(registration, fullParticipants ?? []);
+    const { error: emailError } = await sendRegistrationEmail({
+      to: contact_email,
+      contactName: contact_name,
+      registrationId,
+      pdfBuffer,
+    });
+    if (emailError) {
+      console.error("sendRegistrationEmail failed", emailError);
+    }
+  } catch (err) {
+    // The registration itself already succeeded — a PDF/email hiccup shouldn't fail the request.
+    console.error("PDF generation or email delivery failed", err);
+  }
 
   return NextResponse.json(
     { id: registrationId, total_amount: totalAmount, participants: resultParticipants },
