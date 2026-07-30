@@ -30,7 +30,7 @@ export function TiltCard({ children, className = "" }: TiltCardProps) {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`[transform-style:preserve-3d] transition-[transform,box-shadow] duration-200 ease-out hover:shadow-2xl ${className}`}
+      className={`[transform-style:preserve-3d] transition-transform duration-200 ease-out ${className}`}
     >
       {children}
     </div>

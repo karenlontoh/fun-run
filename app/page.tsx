@@ -5,7 +5,6 @@ import { Reveal } from "@/app/components/Reveal";
 import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
-import { SectionDivider } from "@/app/components/SectionDivider";
 import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
@@ -70,13 +69,13 @@ export default function Home() {
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href="/daftar"
-                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
+                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition hover:bg-orange-dark"
                 >
                   REGISTER NOW
                 </Link>
                 <a
                   href="#kategori"
-                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-cream hover:text-navy active:translate-y-0 active:scale-100"
+                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition hover:bg-cream hover:text-navy"
                 >
                   VIEW CATEGORIES
                 </a>
@@ -113,7 +112,6 @@ export default function Home() {
         </section>
 
         <MarqueeBanner text={TICKER_TEXT} />
-        <SectionDivider base="bg-orange" wedge="bg-cream" />
 
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
@@ -189,8 +187,6 @@ export default function Home() {
           </div>
         </section>
 
-        <SectionDivider base="bg-cream" wedge="bg-orange" flip />
-
         {/* CTA */}
         <section className="bg-orange py-16 text-center text-cream sm:py-20">
           <Reveal>
@@ -198,7 +194,7 @@ export default function Home() {
             <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
             <Link
               href="/daftar"
-              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
+              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream transition hover:bg-navy-light"
             >
               REGISTER NOW
             </Link>
