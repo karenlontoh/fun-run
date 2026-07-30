@@ -171,10 +171,10 @@ export default async function VerifyPage({
           )}
 
           <Link
-            href="/"
+            href="/verify"
             className="mt-10 inline-block font-display text-lg tracking-wide text-navy underline decoration-orange decoration-4 underline-offset-4"
           >
-            BACK TO HOME
+            ← BACK TO ALL REGISTRATIONS
           </Link>
         </div>
       </main>
