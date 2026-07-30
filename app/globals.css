@@ -77,24 +77,3 @@ body {
     animation: none;
   }
 }
-
-/* Heartbeat pulse used on the countdown digit boxes, synced to the second. */
-@keyframes tick-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-}
-
-.animate-tick {
-  animation: tick-pulse 1s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-tick {
-    animation: none;
-  }
-}

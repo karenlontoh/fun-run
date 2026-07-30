@@ -10,8 +10,6 @@ export const EVENT = {
   address: "Jl. Taman Sunda Kelapa No. 12",
   registrationOpen: "9 August 2026",
   registrationClose: "20 September 2026",
-  // ISO datetime (with timezone) registration actually closes at — used by the countdown timer.
-  registrationCloseAt: "2026-09-20T23:59:59+07:00",
   contactEmail: "funrun@gpibpaulusjakarta.org",
   contactPhone: "0812-3456-7890",
   instagram: "@paulusfunrun",
