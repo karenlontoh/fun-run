@@ -48,7 +48,7 @@ body {
 }
 
 .animate-marquee {
-  animation: marquee 28s linear infinite;
+  animation: marquee 55s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -74,6 +74,27 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-float {
+    animation: none;
+  }
+}
+
+/* Heartbeat pulse used on the countdown digit boxes, synced to the second. */
+@keyframes tick-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-tick {
+  animation: tick-pulse 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-tick {
     animation: none;
   }
 }
