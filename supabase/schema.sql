@@ -3,9 +3,11 @@
 
 create extension if not exists "pgcrypto";
 
--- Bib numbers are assigned sequentially across the whole event.
--- Change the start value if you want bibs to start somewhere other than 1000.
-create sequence if not exists bib_number_seq start 1000;
+-- Bib numbers are assigned per category so the first digit tells you which
+-- race a runner is in at a glance: 2.5K bibs start at 2001, 5K bibs at 5001.
+-- Change the start values if you want a different numbering scheme.
+create sequence if not exists bib_number_seq_25k start 2001;
+create sequence if not exists bib_number_seq_5k start 5001;
 
 create table if not exists registrations (
   id uuid primary key default gen_random_uuid(),
@@ -27,7 +29,7 @@ on conflict (id) do nothing;
 create table if not exists participants (
   id uuid primary key default gen_random_uuid(),
   registration_id uuid not null references registrations(id) on delete cascade,
-  bib_number integer not null unique default nextval('bib_number_seq'),
+  bib_number integer not null unique,
   full_name text not null,
   gender text not null check (gender in ('L', 'P')),
   category text not null,
@@ -35,6 +37,11 @@ create table if not exists participants (
   checked_in boolean not null default false,
   checked_in_at timestamptz
 );
+
+-- If participants already existed from an earlier version of this schema
+-- (with a shared default sequence), drop that default — bib_number is now
+-- always assigned explicitly per-category inside create_registration below.
+alter table participants alter column bib_number drop default;
 
 create index if not exists participants_registration_id_idx on participants(registration_id);
 
@@ -69,13 +76,17 @@ begin
   returning id into v_registration_id;
 
   return query
-  insert into participants (registration_id, full_name, gender, category, jersey_size)
+  insert into participants (registration_id, full_name, gender, category, jersey_size, bib_number)
   select
     v_registration_id,
     p->>'full_name',
     p->>'gender',
     p->>'category',
-    p->>'jersey_size'
+    p->>'jersey_size',
+    case
+      when p->>'category' = '5K' then nextval('bib_number_seq_5k')
+      else nextval('bib_number_seq_25k')
+    end
   from jsonb_array_elements(p_participants) as p
   returning participants.registration_id, participants.id, participants.bib_number, participants.full_name;
 end;

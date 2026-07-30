@@ -69,7 +69,7 @@ export default async function VerifyIndexPage() {
           </div>
 
           <div className="mt-8 overflow-x-auto rounded-xl border border-navy/10 bg-white">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full min-w-[1020px] text-left text-sm">
               <thead className="border-b border-navy/10 bg-navy/5 text-xs uppercase tracking-wide text-navy/60">
                 <tr>
                   <th className="px-4 py-3">Registered</th>
@@ -78,6 +78,7 @@ export default async function VerifyIndexPage() {
                   <th className="px-4 py-3">Checked In</th>
                   <th className="px-4 py-3">Total</th>
                   <th className="px-4 py-3">Payment Proof</th>
+                  <th className="px-4 py-3">PDF</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -118,6 +119,16 @@ export default async function VerifyIndexPage() {
                         ) : (
                           <span className="text-navy/40">Not uploaded</span>
                         )}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <a
+                          href={`/api/registrations/${registration.id}/pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-navy underline decoration-lime decoration-2 underline-offset-4"
+                        >
+                          View PDF
+                        </a>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         <Link

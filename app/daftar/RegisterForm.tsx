@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, JERSEY_SIZES, type Category, type Gender, type JerseySize } from "@/lib/types";
-import { calculateTotal, formatIDR, getCategoryPrice } from "@/lib/pricing";
+import { calculateTransferAmount, formatIDR, getCategoryPrice } from "@/lib/pricing";
 import { PAYMENT } from "@/lib/event-config";
 
 type ParticipantForm = {
@@ -29,11 +29,10 @@ export function RegisterForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const total = useMemo(
-    () => calculateTotal(participants.map((p) => p.category)),
+  const transferAmount = useMemo(
+    () => calculateTransferAmount(participants.map((p) => p.category)),
     [participants]
   );
-  const transferAmount = total + Number(PAYMENT.uniqueCode);
 
   function updateParticipant(index: number, patch: Partial<ParticipantForm>) {
     setParticipants((prev) => prev.map((p, i) => (i === index ? { ...p, ...patch } : p)));
@@ -227,10 +226,11 @@ export function RegisterForm() {
       <section className="rounded-2xl bg-navy p-6 text-cream sm:p-8">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-2xl">Total Payment</h2>
-          <p className="font-display text-3xl text-lime">{formatIDR(total)}</p>
+          <p className="font-display text-3xl text-lime">{formatIDR(transferAmount)}</p>
         </div>
         <p className="mt-1 text-sm text-cream/70">
-          {participants.length} participant(s) × price per category.
+          {participants.length} participant(s) × price per category, plus a unique code (
+          {PAYMENT.uniqueCode}) in the last 3 digits so our committee can match your payment.
         </p>
 
         <div className="mt-6 rounded-xl bg-white/10 p-4 text-sm">
@@ -240,10 +240,9 @@ export function RegisterForm() {
           </p>
           <p className="text-cream/80">Account holder: {PAYMENT.accountHolder}</p>
           <p className="mt-3 border-t border-white/10 pt-3">
-            Please transfer the exact amount of{" "}
-            <span className="font-display text-lime">{formatIDR(transferAmount)}</span> — the last
-            3 digits ({PAYMENT.uniqueCode}) are a unique code that helps our committee match your
-            payment.
+            Please transfer the exact amount shown above —{" "}
+            <span className="font-display text-lime">{formatIDR(transferAmount)}</span>, not a
+            rounded number.
           </p>
         </div>
 

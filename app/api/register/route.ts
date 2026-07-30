@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { uploadPaymentProof } from "@/lib/storage";
-import { calculateTotal } from "@/lib/pricing";
+import { calculateTransferAmount } from "@/lib/pricing";
 import { generateRegistrationPdf } from "@/lib/pdf";
 import { sendRegistrationEmail } from "@/lib/email";
 import {
@@ -121,7 +121,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const totalAmount = calculateTotal(participants.map((p) => p.category));
+  // total_amount already includes the unique code (see PAYMENT.uniqueCode) —
+  // it's the exact figure the registrant was told to transfer, so every page
+  // that displays it (success, verify, admin) shows one consistent number.
+  const totalAmount = calculateTransferAmount(participants.map((p) => p.category));
 
   type CreateRegistrationRow = {
     registration_id: string;
