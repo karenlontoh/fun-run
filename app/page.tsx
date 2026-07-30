@@ -5,6 +5,9 @@ import { Reveal } from "@/app/components/Reveal";
 import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
+import { RunnerGraphic } from "@/app/components/RunnerGraphic";
+import { ScrollCue } from "@/app/components/ScrollCue";
+import { SectionDivider } from "@/app/components/SectionDivider";
 import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
@@ -23,6 +26,9 @@ export default function Home() {
             className="absolute -left-32 bottom-0 h-64 w-64 -rotate-12 bg-lime/90 sm:h-80 sm:w-80"
             speed={-0.08}
           />
+          <div className="absolute right-6 bottom-16 hidden w-36 text-lime sm:block sm:w-48 sm:right-10 lg:right-20 lg:w-60">
+            <RunnerGraphic className="h-auto w-full drop-shadow-[0_8px_24px_rgba(0,0,0,0.25)]" />
+          </div>
           <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
             <Reveal delay={100}>
               <h1 className="font-display text-6xl leading-[0.82] tracking-normal sm:text-8xl">
@@ -69,18 +75,19 @@ export default function Home() {
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href="/daftar"
-                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition hover:bg-orange-dark"
+                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
                 >
                   REGISTER NOW
                 </Link>
                 <a
                   href="#kategori"
-                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition hover:bg-cream hover:text-navy"
+                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-cream hover:text-navy active:translate-y-0 active:scale-100"
                 >
                   VIEW CATEGORIES
                 </a>
               </div>
             </Reveal>
+            <ScrollCue className="mt-16 hidden sm:flex" />
           </div>
         </section>
 
@@ -112,6 +119,7 @@ export default function Home() {
         </section>
 
         <MarqueeBanner text={TICKER_TEXT} />
+        <SectionDivider base="bg-orange" wedge="bg-cream" />
 
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
@@ -187,6 +195,8 @@ export default function Home() {
           </div>
         </section>
 
+        <SectionDivider base="bg-cream" wedge="bg-orange" flip />
+
         {/* CTA */}
         <section className="bg-orange py-16 text-center text-cream sm:py-20">
           <Reveal>
@@ -194,7 +204,7 @@ export default function Home() {
             <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
             <Link
               href="/daftar"
-              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream transition hover:bg-navy-light"
+              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
             >
               REGISTER NOW
             </Link>
