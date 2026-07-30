@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
+import { CollectRacePackButton } from "@/app/components/CollectRacePackButton";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getPaymentProofSignedUrl } from "@/lib/storage";
 import { formatIDR } from "@/lib/pricing";
@@ -11,16 +12,25 @@ export const dynamic = "force-dynamic";
 
 function ParticipantRow({ p }: { p: Participant }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-navy/10 bg-white px-5 py-4">
-      <div>
-        <p className="font-semibold text-navy">{p.full_name}</p>
-        <p className="text-sm text-navy/60">
-          {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey {p.jersey_size}
-        </p>
+    <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-semibold text-navy">{p.full_name}</p>
+          <p className="text-sm text-navy/60">
+            {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey {p.jersey_size}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-navy/50">BIB</p>
+          <p className="font-display text-2xl text-orange">{p.bib_number}</p>
+        </div>
       </div>
-      <div className="text-right">
-        <p className="text-xs text-navy/50">BIB</p>
-        <p className="font-display text-2xl text-orange">{p.bib_number}</p>
+      <div className="mt-3 border-t border-navy/10 pt-3">
+        <CollectRacePackButton
+          participantId={p.id}
+          initialCheckedIn={p.checked_in}
+          initialCheckedInAt={p.checked_in_at}
+        />
       </div>
     </div>
   );

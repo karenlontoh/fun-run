@@ -21,6 +21,10 @@ lewat iframe.
   masing-masing. PDF yang sama juga bisa diunduh langsung dari halaman sukses.
 - **Nomor BIB tidak ditampilkan ke pendaftar** (tidak di web, tidak di PDF/email) — BIB baru
   muncul saat panitia scan QR di halaman `/verify/[id]` pada race day.
+- **Halaman `/verify/[id]` dikunci passcode** — cuma panitia yang tahu kode aksesnya yang bisa
+  lihat isinya (nama, BIB, dll), termasuk kalau pesertanya sendiri iseng scan/buka QR-nya.
+- **Tombol "Collect Race Pack"** di halaman verify — panitia tap sekali per peserta saat
+  serah-terima race pack, otomatis tersimpan waktu & statusnya di database.
 
 ## Setup
 
@@ -49,7 +53,13 @@ lewat iframe.
 Kalau `RESEND_API_KEY` belum diisi, pendaftaran tetap jalan normal — cuma email tidak terkirim
 (PDF tetap bisa diunduh manual dari halaman sukses).
 
-### 3. Environment variables
+### 3. Set passcode untuk panitia
+
+Isi `VERIFY_ACCESS_CODE` di env var dengan kode bebas (misal PIN 6 digit). Ini yang harus
+dimasukkan panitia sekali di HP mereka masing-masing (berlaku 12 jam) sebelum bisa scan & lihat
+data peserta di `/verify/[id]`. Bagikan kode ini hanya ke panitia, jangan ke publik.
+
+### 4. Environment variables
 
 ```bash
 cp .env.example .env.local
@@ -59,7 +69,7 @@ Isi `.env.local` dengan nilai dari Supabase & Resend di atas. `NEXT_PUBLIC_SITE_
 `http://localhost:3000` untuk development, dan diganti ke URL production setelah deploy (dipakai
 untuk membuat link yang di-encode di dalam QR code).
 
-### 4. Jalankan lokal
+### 5. Jalankan lokal
 
 ```bash
 npm install
@@ -107,3 +117,8 @@ halaman.
   `/verify/<participant_id>`. Halaman `/verify/[id]` otomatis mendeteksi jenis ID-nya (coba cari
   di `registrations` dulu, kalau tidak ketemu coba `participants`) dan menampilkan tampilan yang
   sesuai. Kedua ID berupa UUID acak jadi tidak bisa ditebak.
+- `checked_in` / `checked_in_at` di `participants` diisi lewat tombol "Collect Race Pack" di
+  halaman verify — dipakai panitia untuk menandai race pack sudah diserahkan.
+- Semua halaman `/verify/*` (termasuk API check-in-nya) dilindungi `middleware.ts` — tanpa cookie
+  akses yang valid (didapat dari halaman `/verify-login` + `VERIFY_ACCESS_CODE`), request akan
+  di-redirect / ditolak.
