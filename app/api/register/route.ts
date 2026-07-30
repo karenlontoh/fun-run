@@ -1,34 +1,43 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { uploadPaymentProof } from "@/lib/storage";
+import { calculateTotal } from "@/lib/pricing";
 import { CATEGORIES, JERSEY_SIZES, type Category, type JerseySize, type RegisterPayload } from "@/lib/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_FILE_TYPES: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "application/pdf": "pdf",
+};
 
-function validate(body: unknown): { ok: true; value: RegisterPayload } | { ok: false; error: string } {
-  if (typeof body !== "object" || body === null) {
-    return { ok: false, error: "Payload tidak valid." };
+function validateFields(body: {
+  contact_name: unknown;
+  contact_email: unknown;
+  contact_phone: unknown;
+  participants: unknown;
+}): { ok: true; value: RegisterPayload } | { ok: false; error: string } {
+  const contact_name = typeof body.contact_name === "string" ? body.contact_name.trim() : "";
+  const contact_email = typeof body.contact_email === "string" ? body.contact_email.trim() : "";
+  const contact_phone = typeof body.contact_phone === "string" ? body.contact_phone.trim() : "";
+
+  if (!contact_name) return { ok: false, error: "Contact name is required." };
+  if (!EMAIL_RE.test(contact_email)) return { ok: false, error: "Contact email is invalid." };
+  if (!contact_phone) return { ok: false, error: "Contact phone number is required." };
+
+  if (!Array.isArray(body.participants) || body.participants.length === 0) {
+    return { ok: false, error: "At least 1 participant is required." };
   }
-  const b = body as Record<string, unknown>;
-
-  const contact_name = typeof b.contact_name === "string" ? b.contact_name.trim() : "";
-  const contact_email = typeof b.contact_email === "string" ? b.contact_email.trim() : "";
-  const contact_phone = typeof b.contact_phone === "string" ? b.contact_phone.trim() : "";
-
-  if (!contact_name) return { ok: false, error: "Nama kontak wajib diisi." };
-  if (!EMAIL_RE.test(contact_email)) return { ok: false, error: "Email kontak tidak valid." };
-  if (!contact_phone) return { ok: false, error: "Nomor telepon kontak wajib diisi." };
-
-  if (!Array.isArray(b.participants) || b.participants.length === 0) {
-    return { ok: false, error: "Minimal harus ada 1 peserta." };
-  }
-  if (b.participants.length > 20) {
-    return { ok: false, error: "Maksimal 20 peserta per pendaftaran." };
+  if (body.participants.length > 20) {
+    return { ok: false, error: "Maximum 20 participants per registration." };
   }
 
   const participants: RegisterPayload["participants"] = [];
-  for (const [i, raw] of b.participants.entries()) {
+  for (const [i, raw] of body.participants.entries()) {
     if (typeof raw !== "object" || raw === null) {
-      return { ok: false, error: `Data peserta ke-${i + 1} tidak valid.` };
+      return { ok: false, error: `Participant ${i + 1}'s data is invalid.` };
     }
     const p = raw as Record<string, unknown>;
     const full_name = typeof p.full_name === "string" ? p.full_name.trim() : "";
@@ -36,15 +45,15 @@ function validate(body: unknown): { ok: true; value: RegisterPayload } | { ok: f
     const category = p.category;
     const jersey_size = p.jersey_size;
 
-    if (!full_name) return { ok: false, error: `Nama peserta ke-${i + 1} wajib diisi.` };
+    if (!full_name) return { ok: false, error: `Participant ${i + 1}'s name is required.` };
     if (gender !== "L" && gender !== "P") {
-      return { ok: false, error: `Jenis kelamin peserta ke-${i + 1} tidak valid.` };
+      return { ok: false, error: `Participant ${i + 1}'s gender is invalid.` };
     }
     if (typeof category !== "string" || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
-      return { ok: false, error: `Kategori peserta ke-${i + 1} tidak valid.` };
+      return { ok: false, error: `Participant ${i + 1}'s category is invalid.` };
     }
     if (typeof jersey_size !== "string" || !JERSEY_SIZES.includes(jersey_size as (typeof JERSEY_SIZES)[number])) {
-      return { ok: false, error: `Ukuran jersey peserta ke-${i + 1} tidak valid.` };
+      return { ok: false, error: `Participant ${i + 1}'s jersey size is invalid.` };
     }
 
     participants.push({
@@ -62,18 +71,47 @@ function validate(body: unknown): { ok: true; value: RegisterPayload } | { ok: f
 }
 
 export async function POST(request: Request) {
-  let body: unknown;
+  let formData: FormData;
   try {
-    body = await request.json();
+    formData = await request.formData();
   } catch {
-    return NextResponse.json({ error: "Payload bukan JSON yang valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
   }
 
-  const result = validate(body);
+  let participantsRaw: unknown;
+  try {
+    participantsRaw = JSON.parse(String(formData.get("participants") ?? "[]"));
+  } catch {
+    return NextResponse.json({ error: "Invalid participant data." }, { status: 400 });
+  }
+
+  const result = validateFields({
+    contact_name: formData.get("contact_name"),
+    contact_email: formData.get("contact_email"),
+    contact_phone: formData.get("contact_phone"),
+    participants: participantsRaw,
+  });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
   const { contact_name, contact_email, contact_phone, participants } = result.value;
+
+  const paymentProof = formData.get("payment_proof");
+  if (!(paymentProof instanceof File) || paymentProof.size === 0) {
+    return NextResponse.json({ error: "Payment proof is required." }, { status: 400 });
+  }
+  if (paymentProof.size > MAX_FILE_SIZE) {
+    return NextResponse.json({ error: "Payment proof must be under 5MB." }, { status: 400 });
+  }
+  const extension = ALLOWED_FILE_TYPES[paymentProof.type];
+  if (!extension) {
+    return NextResponse.json(
+      { error: "Payment proof must be JPG, PNG, WEBP, or PDF." },
+      { status: 400 }
+    );
+  }
+
+  const totalAmount = calculateTotal(participants.map((p) => p.category));
 
   type CreateRegistrationRow = {
     registration_id: string;
@@ -86,6 +124,7 @@ export async function POST(request: Request) {
     p_contact_name: contact_name,
     p_contact_email: contact_email,
     p_contact_phone: contact_phone,
+    p_total_amount: totalAmount,
     p_participants: participants,
   });
   const rows = data as CreateRegistrationRow[] | null;
@@ -93,12 +132,37 @@ export async function POST(request: Request) {
   if (error || !rows || rows.length === 0) {
     console.error("create_registration failed", error);
     return NextResponse.json(
-      { error: "Gagal menyimpan pendaftaran. Coba lagi beberapa saat lagi." },
+      { error: "Failed to save your registration. Please try again shortly." },
       { status: 500 }
     );
   }
 
   const registrationId = rows[0].registration_id;
+  const proofPath = `${registrationId}/payment-proof.${extension}`;
+
+  const { error: uploadError } = await uploadPaymentProof(proofPath, paymentProof);
+  if (uploadError) {
+    console.error("uploadPaymentProof failed", uploadError);
+    await supabaseServer.from("registrations").delete().eq("id", registrationId);
+    return NextResponse.json(
+      { error: "Failed to upload payment proof. Please try again." },
+      { status: 500 }
+    );
+  }
+
+  const { error: updateError } = await supabaseServer
+    .from("registrations")
+    .update({ payment_proof_path: proofPath })
+    .eq("id", registrationId);
+  if (updateError) {
+    console.error("update payment_proof_path failed", updateError);
+    await supabaseServer.from("registrations").delete().eq("id", registrationId);
+    return NextResponse.json(
+      { error: "Failed to save payment proof. Please try again." },
+      { status: 500 }
+    );
+  }
+
   const resultParticipants = rows.map((row) => ({
     id: row.participant_id,
     bib_number: row.bib_number,
@@ -106,7 +170,7 @@ export async function POST(request: Request) {
   }));
 
   return NextResponse.json(
-    { id: registrationId, participants: resultParticipants },
+    { id: registrationId, total_amount: totalAmount, participants: resultParticipants },
     { status: 201 }
   );
 }

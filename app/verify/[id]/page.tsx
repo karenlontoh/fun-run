@@ -3,6 +3,8 @@ import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { supabaseServer } from "@/lib/supabase-server";
+import { getPaymentProofSignedUrl } from "@/lib/storage";
+import { formatIDR } from "@/lib/pricing";
 import type { Participant, Registration } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +33,10 @@ export default async function VerifyPage({
     .order("bib_number", { ascending: true })
     .returns<Participant[]>();
 
+  const proofUrl = registration.payment_proof_path
+    ? await getPaymentProofSignedUrl(registration.payment_proof_path)
+    : null;
+
   return (
     <>
       <NavBar />
@@ -38,11 +44,11 @@ export default async function VerifyPage({
         <div className="mx-auto max-w-2xl px-5 py-14 sm:py-20">
           <div className="rounded-2xl bg-lime px-6 py-4 text-navy">
             <p className="font-display text-sm tracking-[0.2em]">QR VALID</p>
-            <p className="mt-1 font-semibold">Grup atas nama {registration.contact_name}</p>
+            <p className="mt-1 font-semibold">Group registered under {registration.contact_name}</p>
           </div>
 
           <p className="mt-6 text-sm text-navy/60">
-            {(participants ?? []).length} peserta terdaftar dalam grup ini.
+            {(participants ?? []).length} participant(s) in this group.
           </p>
 
           <div className="mt-4 space-y-3">
@@ -54,7 +60,7 @@ export default async function VerifyPage({
                 <div>
                   <p className="font-semibold text-navy">{p.full_name}</p>
                   <p className="text-sm text-navy/60">
-                    {p.category} · {p.gender === "L" ? "Laki-laki" : "Perempuan"} · Jersey{" "}
+                    {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey{" "}
                     {p.jersey_size}
                   </p>
                 </div>
@@ -67,16 +73,35 @@ export default async function VerifyPage({
           </div>
 
           <div className="mt-10 rounded-xl border border-navy/10 bg-white px-5 py-4 text-sm text-navy/70">
-            <p className="font-semibold text-navy">Kontak Pendaftar</p>
+            <p className="font-semibold text-navy">Registrant Contact</p>
             <p className="mt-1">{registration.contact_email}</p>
             <p>{registration.contact_phone}</p>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-navy/10 bg-white px-5 py-4">
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-navy">Total Payment</p>
+              <p className="font-display text-xl text-orange">{formatIDR(registration.total_amount)}</p>
+            </div>
+            {proofUrl ? (
+              <a
+                href={proofUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm font-semibold text-navy underline decoration-lime decoration-2 underline-offset-4"
+              >
+                View Payment Proof
+              </a>
+            ) : (
+              <p className="mt-2 text-sm text-navy/60">Payment proof not available.</p>
+            )}
           </div>
 
           <Link
             href="/"
             className="mt-10 inline-block font-display text-lg tracking-wide text-navy underline decoration-orange decoration-4 underline-offset-4"
           >
-            KEMBALI KE BERANDA
+            BACK TO HOME
           </Link>
         </div>
       </main>

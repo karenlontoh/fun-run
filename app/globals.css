@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-lime: #d7ea2e;
-  --color-lime-dark: #b9ce15;
-  --color-orange: #ff4b1f;
-  --color-orange-dark: #e23b12;
-  --color-navy: #0b1b4f;
-  --color-navy-light: #142868;
+  /* Exact brand colors from KV_FUNRUN_1 brand guideline. */
+  --color-lime: #c3ea41;
+  --color-lime-dark: #a8cc27;
+  --color-orange: #fe572a;
+  --color-orange-dark: #e2400f;
+  --color-navy: #002560;
+  --color-navy-light: #0d3a85;
   --color-cream: #fff8e9;
 
   --font-display: var(--font-display);
@@ -23,6 +24,7 @@ body {
 
 .font-display {
   font-family: var(--font-display), Impact, sans-serif;
+  font-weight: 700;
 }
 
 /* Slight diagonal tilt used on poster-style blocks and badges. */

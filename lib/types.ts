@@ -1,6 +1,6 @@
 export type Gender = "L" | "P";
 
-export const CATEGORIES = ["5K", "10K"] as const;
+export const CATEGORIES = ["2.5K", "5K"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export const JERSEY_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
@@ -38,6 +38,8 @@ export type Registration = {
   contact_name: string;
   contact_email: string;
   contact_phone: string;
+  total_amount: number;
+  payment_proof_path: string | null;
 };
 
 export type RegistrationWithParticipants = Registration & {

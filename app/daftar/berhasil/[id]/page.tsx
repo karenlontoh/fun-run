@@ -5,6 +5,8 @@ import { Footer } from "@/app/components/Footer";
 import { supabaseServer } from "@/lib/supabase-server";
 import { generateQrDataUrl } from "@/lib/qrcode";
 import { verifyUrl } from "@/lib/site";
+import { getPaymentProofSignedUrl } from "@/lib/storage";
+import { formatIDR } from "@/lib/pricing";
 import type { Participant, Registration } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +36,9 @@ export default async function RegistrationSuccessPage({
     .returns<Participant[]>();
 
   const qrDataUrl = await generateQrDataUrl(verifyUrl(id));
+  const proofUrl = registration.payment_proof_path
+    ? await getPaymentProofSignedUrl(registration.payment_proof_path)
+    : null;
 
   return (
     <>
@@ -41,31 +46,31 @@ export default async function RegistrationSuccessPage({
       <main className="flex-1 bg-cream">
         <div className="mx-auto max-w-3xl px-5 py-14 text-center sm:py-20">
           <p className="font-display text-sm tracking-[0.3em] text-lime-dark">
-            PENDAFTARAN BERHASIL
+            REGISTRATION SUCCESSFUL
           </p>
           <h1 className="font-display mt-2 text-4xl text-navy sm:text-5xl">
-            Sampai Jumpa di Race Day!
+            See You on Race Day!
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-navy/70">
-            Simpan atau screenshot QR code di bawah ini. Tunjukkan QR ini saat pengambilan race
-            pack — data seluruh peserta di grup ini akan langsung muncul.
+            Save or screenshot the QR code below. Show this QR code when collecting your race pack
+            — all participants in this group will appear instantly.
           </p>
 
           <div className="mx-auto mt-10 w-fit rounded-3xl border border-navy/10 bg-white p-8 shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={qrDataUrl} alt="QR code pendaftaran" width={240} height={240} className="mx-auto" />
-            <p className="mt-4 text-xs text-navy/50">ID Pendaftaran: {id}</p>
+            <img src={qrDataUrl} alt="Registration QR code" width={240} height={240} className="mx-auto" />
+            <p className="mt-4 text-xs text-navy/50">Registration ID: {id}</p>
             <a
               href={qrDataUrl}
               download={`paulus-fun-run-${id}.png`}
               className="mt-4 inline-block rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
             >
-              Unduh QR Code
+              Download QR Code
             </a>
           </div>
 
           <div className="mt-12 text-left">
-            <h2 className="font-display text-2xl text-navy">Peserta Terdaftar</h2>
+            <h2 className="font-display text-2xl text-navy">Registered Participants</h2>
             <div className="mt-4 space-y-3">
               {(participants ?? []).map((p) => (
                 <div
@@ -75,7 +80,7 @@ export default async function RegistrationSuccessPage({
                   <div>
                     <p className="font-semibold text-navy">{p.full_name}</p>
                     <p className="text-sm text-navy/60">
-                      {p.category} · {p.gender === "L" ? "Laki-laki" : "Perempuan"} · Jersey{" "}
+                      {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey{" "}
                       {p.jersey_size}
                     </p>
                   </div>
@@ -88,11 +93,33 @@ export default async function RegistrationSuccessPage({
             </div>
           </div>
 
+          <div className="mt-8 rounded-2xl border border-navy/10 bg-white px-6 py-5 text-left">
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-navy">Total Payment</p>
+              <p className="font-display text-2xl text-orange">{formatIDR(registration.total_amount)}</p>
+            </div>
+            {proofUrl ? (
+              <a
+                href={proofUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm font-semibold text-navy underline decoration-lime decoration-2 underline-offset-4"
+              >
+                View your uploaded payment proof
+              </a>
+            ) : (
+              <p className="mt-2 text-sm text-navy/60">Payment proof not available.</p>
+            )}
+            <p className="mt-2 text-xs text-navy/50">
+              Our committee will verify your payment before race day.
+            </p>
+          </div>
+
           <Link
             href="/"
             className="mt-12 inline-block font-display text-lg tracking-wide text-navy underline decoration-orange decoration-4 underline-offset-4"
           >
-            KEMBALI KE BERANDA
+            BACK TO HOME
           </Link>
         </div>
       </main>

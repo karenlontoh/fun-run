@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Anton, Inter } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 
-const anton = Anton({
+const poppins = Poppins({
   variable: "--font-display",
-  weight: "400",
+  weight: ["600", "700", "800"],
   subsets: ["latin"],
 });
 
@@ -16,7 +16,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Paulus Fun Run 2026",
   description:
-    "Paulus Fun Run 2026 — event lari komunitas GPIB Paulus Jakarta. Daftar sekarang dan jadi bagian dari keseruannya!",
+    "Paulus Fun Run 2026 — a community run by GPIB Paulus Jakarta. Register now and be part of the fun!",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${anton.variable} ${inter.variable} h-full`}>
+    <html lang="en" className={`${poppins.variable} ${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-cream text-navy antialiased">
         {children}
       </body>

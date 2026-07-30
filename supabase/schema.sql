@@ -12,8 +12,17 @@ create table if not exists registrations (
   created_at timestamptz not null default now(),
   contact_name text not null,
   contact_email text not null,
-  contact_phone text not null
+  contact_phone text not null,
+  total_amount integer not null default 0,
+  payment_proof_path text
 );
+
+-- Private bucket for payment proof uploads. The app only ever writes/reads
+-- this via the server-side service role client, so no public bucket or
+-- storage.objects policies are needed.
+insert into storage.buckets (id, name, public)
+values ('payment-proofs', 'payment-proofs', false)
+on conflict (id) do nothing;
 
 create table if not exists participants (
   id uuid primary key default gen_random_uuid(),
@@ -35,6 +44,7 @@ create or replace function create_registration(
   p_contact_name text,
   p_contact_email text,
   p_contact_phone text,
+  p_total_amount integer,
   p_participants jsonb
 )
 returns table (
@@ -54,8 +64,8 @@ begin
     raise exception 'At least one participant is required';
   end if;
 
-  insert into registrations (contact_name, contact_email, contact_phone)
-  values (p_contact_name, p_contact_email, p_contact_phone)
+  insert into registrations (contact_name, contact_email, contact_phone, total_amount)
+  values (p_contact_name, p_contact_email, p_contact_phone, p_total_amount)
   returning id into v_registration_id;
 
   return query
