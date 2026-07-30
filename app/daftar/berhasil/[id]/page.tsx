@@ -62,12 +62,21 @@ export default async function RegistrationSuccessPage({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={qrDataUrl} alt="Registration QR code" width={240} height={240} className="mx-auto" />
             <p className="mt-4 text-xs text-navy/50">Registration ID: {id}</p>
-            <a
-              href={`/api/registrations/${id}/pdf`}
-              className="mt-4 inline-block rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
-            >
-              Download PDF (Group + Personal QR Codes)
-            </a>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <a
+                href={qrDataUrl}
+                download={`paulus-fun-run-${id}.png`}
+                className="inline-block rounded-full border-2 border-navy px-6 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
+              >
+                Download QR Code
+              </a>
+              <a
+                href={`/api/registrations/${id}/pdf`}
+                className="inline-block rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
+              >
+                Download PDF (Group + Personal QR Codes)
+              </a>
+            </div>
           </div>
 
           <div className="mt-12 text-left">
