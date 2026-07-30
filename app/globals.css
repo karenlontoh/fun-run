@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-lime: #d7ea2e;
+  --color-lime-dark: #b9ce15;
+  --color-orange: #ff4b1f;
+  --color-orange-dark: #e23b12;
+  --color-navy: #0b1b4f;
+  --color-navy-light: #142868;
+  --color-cream: #fff8e9;
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), Impact, sans-serif;
+}
+
+/* Slight diagonal tilt used on poster-style blocks and badges. */
+.skew-block {
+  transform: skewY(-2deg);
+}
+
+.skew-block > * {
+  transform: skewY(2deg);
+}
