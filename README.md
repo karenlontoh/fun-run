@@ -25,6 +25,10 @@ lewat iframe.
   lihat isinya (nama, BIB, dll), termasuk kalau pesertanya sendiri iseng scan/buka QR-nya.
 - **Tombol "Collect Race Pack"** di halaman verify — panitia tap sekali per peserta saat
   serah-terima race pack, otomatis tersimpan waktu & statusnya di database.
+- **Halaman rekap panitia** (`/verify`) — daftar semua pendaftaran sekaligus: kontak, peserta,
+  status check-in, total bayar, dan link langsung ke bukti pembayaran tiap pendaftaran. Sama
+  seperti `/verify/[id]`, halaman ini terkunci passcode dan bisa langsung di-share link-nya ke
+  panitia lain.
 
 ## Setup
 
