@@ -11,10 +11,6 @@ export function Footer() {
           {EVENT.address}.
         </p>
         <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-cream/80">
-          <a href={`mailto:${EVENT.contactEmail}`} className="hover:text-lime">
-            {EVENT.contactEmail}
-          </a>
-          <span>{EVENT.contactPhone}</span>
           <a
             href={`https://instagram.com/${EVENT.instagram.replace("@", "")}`}
             target="_blank"
