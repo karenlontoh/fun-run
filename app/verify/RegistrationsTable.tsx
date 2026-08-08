@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { formatIDR } from "@/lib/pricing";
-import type { Participant, Registration } from "@/lib/types";
+import { PAYMENT_STATUSES, type Participant, type PaymentStatus, type Registration } from "@/lib/types";
 
 type Row = {
   registration: Registration;
@@ -11,20 +11,32 @@ type Row = {
   proofUrl: string | null;
 };
 
-type SortOption = "newest" | "unverified" | "verified";
+type SortOption = "newest" | PaymentStatus;
+
+const STATUS_LABEL: Record<PaymentStatus, string> = {
+  pending: "Need Verify",
+  verified: "Verified",
+  unverified: "Unverified",
+};
+
+const STATUS_CLASSES: Record<PaymentStatus, string> = {
+  pending: "border-amber-200 bg-amber-100 text-amber-700",
+  verified: "border-green-200 bg-green-100 text-green-700",
+  unverified: "border-red-200 bg-red-100 text-red-700",
+};
 
 export function RegistrationsTable({ rows }: { rows: Row[] }) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [verifiedMap, setVerifiedMap] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(rows.map((r) => [r.registration.id, r.registration.payment_verified]))
+  const [statusMap, setStatusMap] = useState<Record<string, PaymentStatus>>(() =>
+    Object.fromEntries(rows.map((r) => [r.registration.id, r.registration.payment_status]))
   );
   const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
   const [errorIds, setErrorIds] = useState<Record<string, string>>({});
 
-  async function toggleVerified(id: string, next: boolean) {
-    const previous = verifiedMap[id];
-    setVerifiedMap((prev) => ({ ...prev, [id]: next }));
+  async function updateStatus(id: string, next: PaymentStatus) {
+    const previous = statusMap[id];
+    setStatusMap((prev) => ({ ...prev, [id]: next }));
     setPendingIds((prev) => ({ ...prev, [id]: true }));
     setErrorIds((prev) => {
       const rest = { ...prev };
@@ -35,15 +47,15 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
       const res = await fetch(`/api/registrations/${id}/verify-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ verified: next }),
+        body: JSON.stringify({ status: next }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setVerifiedMap((prev) => ({ ...prev, [id]: previous }));
+        setStatusMap((prev) => ({ ...prev, [id]: previous }));
         setErrorIds((prev) => ({ ...prev, [id]: data?.error ?? "Failed to update. Try again." }));
       }
     } catch {
-      setVerifiedMap((prev) => ({ ...prev, [id]: previous }));
+      setStatusMap((prev) => ({ ...prev, [id]: previous }));
       setErrorIds((prev) => ({ ...prev, [id]: "Network error. Try again." }));
     } finally {
       setPendingIds((prev) => {
@@ -66,12 +78,12 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
     if (sortBy === "newest") return filteredRows;
     const sorted = [...filteredRows];
     sorted.sort((a, b) => {
-      const aVerified = verifiedMap[a.registration.id] ? 1 : 0;
-      const bVerified = verifiedMap[b.registration.id] ? 1 : 0;
-      return sortBy === "unverified" ? aVerified - bVerified : bVerified - aVerified;
+      const aMatch = statusMap[a.registration.id] === sortBy ? 0 : 1;
+      const bMatch = statusMap[b.registration.id] === sortBy ? 0 : 1;
+      return aMatch - bMatch;
     });
     return sorted;
-  }, [filteredRows, sortBy, verifiedMap]);
+  }, [filteredRows, sortBy, statusMap]);
 
   return (
     <>
@@ -89,8 +101,9 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
           className="rounded-xl border border-navy/10 bg-white px-4 py-2.5 text-sm text-navy focus:border-orange focus:outline-none"
         >
           <option value="newest">Sort: Newest First</option>
-          <option value="unverified">Sort: Unverified First</option>
+          <option value="pending">Sort: Need Verify First</option>
           <option value="verified">Sort: Verified First</option>
+          <option value="unverified">Sort: Unverified First</option>
         </select>
       </div>
 
@@ -98,7 +111,7 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
         <table className="w-full min-w-[1080px] text-left text-sm">
           <thead className="border-b border-navy/10 bg-navy/5 text-xs uppercase tracking-wide text-navy/60">
             <tr>
-              <th className="px-4 py-3">Verified</th>
+              <th className="px-4 py-3">Payment Status</th>
               <th className="px-4 py-3">Registered</th>
               <th className="px-4 py-3">Contact</th>
               <th className="px-4 py-3">Participants</th>
@@ -112,23 +125,22 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
           <tbody className="divide-y divide-navy/10">
             {sortedRows.map(({ registration, participants: groupParticipants, proofUrl }) => {
               const checkedInCount = groupParticipants.filter((p) => p.checked_in).length;
-              const verified = verifiedMap[registration.id] ?? false;
+              const status = statusMap[registration.id] ?? "pending";
               return (
                 <tr key={registration.id}>
                   <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleVerified(registration.id, !verified)}
+                    <select
+                      value={status}
                       disabled={pendingIds[registration.id]}
-                      aria-pressed={verified}
-                      className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${
-                        verified
-                          ? "border-green-200 bg-green-100 text-green-700 hover:bg-green-200"
-                          : "border-red-200 bg-red-100 text-red-700 hover:bg-red-200"
-                      }`}
+                      onChange={(e) => updateStatus(registration.id, e.target.value as PaymentStatus)}
+                      className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${STATUS_CLASSES[status]}`}
                     >
-                      {pendingIds[registration.id] ? "..." : verified ? "✓ Verified" : "✕ Unverified"}
-                    </button>
+                      {PAYMENT_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {STATUS_LABEL[s]}
+                        </option>
+                      ))}
+                    </select>
                     {errorIds[registration.id] && (
                       <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
                         {errorIds[registration.id]}

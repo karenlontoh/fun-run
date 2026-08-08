@@ -198,7 +198,7 @@ export async function POST(request: Request) {
       contact_phone,
       total_amount: totalAmount,
       payment_proof_path: proofPath,
-      payment_verified: false,
+      payment_status: "pending",
     };
 
     const pdfBuffer = await generateRegistrationPdf(registration, fullParticipants ?? []);

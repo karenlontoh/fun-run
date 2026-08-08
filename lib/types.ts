@@ -1,5 +1,8 @@
 export type Gender = "L" | "P";
 
+export const PAYMENT_STATUSES = ["pending", "verified", "unverified"] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
 export const CATEGORIES = ["2.5K", "5K"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -40,7 +43,7 @@ export type Registration = {
   contact_phone: string;
   total_amount: number;
   payment_proof_path: string | null;
-  payment_verified: boolean;
+  payment_status: PaymentStatus;
 };
 
 export type RegistrationWithParticipants = Registration & {

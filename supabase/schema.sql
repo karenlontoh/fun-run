@@ -17,12 +17,13 @@ create table if not exists registrations (
   contact_phone text not null,
   total_amount integer not null default 0,
   payment_proof_path text,
-  payment_verified boolean not null default false
+  payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified'))
 );
 
 -- If registrations already existed from an earlier version of this schema,
--- add the payment_verified column used by the committee's admin checklist.
-alter table registrations add column if not exists payment_verified boolean not null default false;
+-- add the payment_status column used by the committee's admin checklist:
+-- 'pending' (needs review) -> 'verified' or 'unverified'.
+alter table registrations add column if not exists payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified'));
 
 -- Private bucket for payment proof uploads. The app only ever writes/reads
 -- this via the server-side service role client, so no public bucket or
