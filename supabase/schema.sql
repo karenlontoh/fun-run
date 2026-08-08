@@ -16,8 +16,13 @@ create table if not exists registrations (
   contact_email text not null,
   contact_phone text not null,
   total_amount integer not null default 0,
-  payment_proof_path text
+  payment_proof_path text,
+  payment_verified boolean not null default false
 );
+
+-- If registrations already existed from an earlier version of this schema,
+-- add the payment_verified column used by the committee's admin checklist.
+alter table registrations add column if not exists payment_verified boolean not null default false;
 
 -- Private bucket for payment proof uploads. The app only ever writes/reads
 -- this via the server-side service role client, so no public bucket or

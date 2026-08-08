@@ -51,12 +51,12 @@ export default async function RegistrationSuccessPage({
           <h1 className="font-display mt-2 text-4xl text-navy sm:text-5xl">
             See You on Race Day!
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-navy/70">
+          {/* <p className="mx-auto mt-4 max-w-xl text-navy/70">
             A PDF with your group QR code and a personal QR code for each participant has been
             sent to <span className="font-semibold text-navy">{registration.contact_email}</span>.
             Show the group QR at check-in, or use each participant&apos;s personal QR if your
             group is arriving separately.
-          </p>
+          </p> */}
 
           <div className="mx-auto mt-10 w-fit rounded-3xl border border-navy/10 bg-white p-8 shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}

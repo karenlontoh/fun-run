@@ -40,6 +40,7 @@ export type Registration = {
   contact_phone: string;
   total_amount: number;
   payment_proof_path: string | null;
+  payment_verified: boolean;
 };
 
 export type RegistrationWithParticipants = Registration & {

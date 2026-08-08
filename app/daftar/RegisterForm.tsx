@@ -28,6 +28,7 @@ export function RegisterForm() {
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const transferAmount = useMemo(
     () => calculateTransferAmount(participants.map((p) => p.category)),
@@ -44,6 +45,16 @@ export function RegisterForm() {
 
   function removeParticipant(index: number) {
     setParticipants((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleCopyAccountNumber() {
+    try {
+      await navigator.clipboard.writeText(PAYMENT.accountNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. non-secure context) — nothing to fall back to.
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -235,10 +246,20 @@ export function RegisterForm() {
 
         <div className="mt-6 rounded-xl bg-white/10 p-4 text-sm">
           <p className="font-semibold">Transfer to:</p>
-          <p className="mt-1">
-            {PAYMENT.bankName} — {PAYMENT.accountNumber}
-          </p>
-          <p className="text-cream/80">Account holder: {PAYMENT.accountHolder}</p>
+          <p className="mt-1 text-base text-cream/90">{PAYMENT.bankName}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <p className="font-display text-2xl tracking-wide text-lime sm:text-3xl">
+              {PAYMENT.accountNumber}
+            </p>
+            <button
+              type="button"
+              onClick={handleCopyAccountNumber}
+              className="rounded-full border border-cream/40 px-4 py-1.5 text-xs font-semibold tracking-wide text-cream transition hover:bg-cream hover:text-navy"
+            >
+              {copied ? "COPIED ✓" : "COPY"}
+            </button>
+          </div>
+          <p className="mt-2 text-base text-cream/90">Account holder: {PAYMENT.accountHolder}</p>
           <p className="mt-3 border-t border-white/10 pt-3">
             Please transfer the exact amount shown above —{" "}
             <span className="font-display text-lime">{formatIDR(transferAmount)}</span>
