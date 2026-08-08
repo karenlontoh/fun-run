@@ -12,7 +12,7 @@ import { formatIDR } from "@/lib/pricing";
 const HOW_IT_WORKS = [
   {
     title: "Register",
-    description: "Fill in your details, add participants, and upload your payment proof — all in one form.",
+    description: "Fill in your details, add participants, and upload your payment proof.",
   },
   {
     title: "Get Your QR",
@@ -174,7 +174,6 @@ export default function Home() {
                       <p className="font-display text-5xl">{cat.code}</p>
                       <p className="font-display text-2xl">{formatIDR(cat.price)}</p>
                     </div>
-                    <p className="mt-2 text-xl font-semibold">{cat.label}</p>
                     <p className="mt-3 opacity-90">{cat.description}</p>
                   </TiltCard>
                 </Reveal>
