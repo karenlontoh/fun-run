@@ -20,22 +20,31 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
     Object.fromEntries(rows.map((r) => [r.registration.id, r.registration.payment_verified]))
   );
   const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
+  const [errorIds, setErrorIds] = useState<Record<string, string>>({});
 
   async function toggleVerified(id: string, next: boolean) {
     const previous = verifiedMap[id];
     setVerifiedMap((prev) => ({ ...prev, [id]: next }));
     setPendingIds((prev) => ({ ...prev, [id]: true }));
+    setErrorIds((prev) => {
+      const rest = { ...prev };
+      delete rest[id];
+      return rest;
+    });
     try {
       const res = await fetch(`/api/registrations/${id}/verify-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verified: next }),
       });
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
         setVerifiedMap((prev) => ({ ...prev, [id]: previous }));
+        setErrorIds((prev) => ({ ...prev, [id]: data?.error ?? "Failed to update. Try again." }));
       }
     } catch {
       setVerifiedMap((prev) => ({ ...prev, [id]: previous }));
+      setErrorIds((prev) => ({ ...prev, [id]: "Network error. Try again." }));
     } finally {
       setPendingIds((prev) => {
         const next = { ...prev };
@@ -106,13 +115,13 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
               const verified = verifiedMap[registration.id] ?? false;
               return (
                 <tr key={registration.id}>
-                  <td className="whitespace-nowrap px-4 py-3">
+                  <td className="px-4 py-3">
                     <button
                       type="button"
                       onClick={() => toggleVerified(registration.id, !verified)}
                       disabled={pendingIds[registration.id]}
                       aria-pressed={verified}
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${
+                      className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${
                         verified
                           ? "border-green-200 bg-green-100 text-green-700 hover:bg-green-200"
                           : "border-red-200 bg-red-100 text-red-700 hover:bg-red-200"
@@ -120,6 +129,11 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
                     >
                       {pendingIds[registration.id] ? "..." : verified ? "✓ Verified" : "✕ Unverified"}
                     </button>
+                    {errorIds[registration.id] && (
+                      <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
+                        {errorIds[registration.id]}
+                      </p>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-navy/60">
                     {new Date(registration.created_at).toLocaleString("en-GB", {
