@@ -107,14 +107,19 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
               return (
                 <tr key={registration.id}>
                   <td className="whitespace-nowrap px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={verified}
+                    <button
+                      type="button"
+                      onClick={() => toggleVerified(registration.id, !verified)}
                       disabled={pendingIds[registration.id]}
-                      onChange={(e) => toggleVerified(registration.id, e.target.checked)}
-                      className="h-5 w-5 cursor-pointer accent-lime-dark disabled:opacity-50"
-                      aria-label="Payment verified"
-                    />
+                      aria-pressed={verified}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${
+                        verified
+                          ? "border-green-200 bg-green-100 text-green-700 hover:bg-green-200"
+                          : "border-red-200 bg-red-100 text-red-700 hover:bg-red-200"
+                      }`}
+                    >
+                      {pendingIds[registration.id] ? "..." : verified ? "✓ Verified" : "✕ Unverified"}
+                    </button>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-navy/60">
                     {new Date(registration.created_at).toLocaleString("en-GB", {
