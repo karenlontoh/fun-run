@@ -17,8 +17,7 @@ export default function DaftarPage() {
           <h1 className="font-display mt-2 text-4xl text-navy sm:text-5xl">Register for the Fun Run</h1>
           <p className="mt-4 text-navy/70">
             Fill out the form below to register. You can add more than one participant (for
-            example, your whole family) in a single registration — everyone gets 1 group QR code
-            and their own BIB number.
+            example, your whole family) in a single registration.
           </p>
           <div className="mt-10">
             <RegisterForm />

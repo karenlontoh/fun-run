@@ -138,9 +138,9 @@ export function RegisterForm() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display text-2xl text-navy">Participant Details</h2>
-            <p className="mt-1 text-sm text-navy/60">
+            {/* <p className="mt-1 text-sm text-navy/60">
               Add every participant in this group. Each participant receives their own BIB number.
-            </p>
+            </p> */}
           </div>
         </div>
 
@@ -228,10 +228,10 @@ export function RegisterForm() {
           <h2 className="font-display text-2xl">Total Payment</h2>
           <p className="font-display text-3xl text-lime">{formatIDR(transferAmount)}</p>
         </div>
-        <p className="mt-1 text-sm text-cream/70">
-          {participants.length} participant(s) × price per category, plus a unique code (
+        {/* <p className="mt-1 text-sm text-cream/70">
+          Please adda unique code (
           {PAYMENT.uniqueCode}) in the last 3 digits so our committee can match your payment.
-        </p>
+        </p> */}
 
         <div className="mt-6 rounded-xl bg-white/10 p-4 text-sm">
           <p className="font-semibold">Transfer to:</p>
@@ -241,8 +241,7 @@ export function RegisterForm() {
           <p className="text-cream/80">Account holder: {PAYMENT.accountHolder}</p>
           <p className="mt-3 border-t border-white/10 pt-3">
             Please transfer the exact amount shown above —{" "}
-            <span className="font-display text-lime">{formatIDR(transferAmount)}</span>, not a
-            rounded number.
+            <span className="font-display text-lime">{formatIDR(transferAmount)}</span>
           </p>
         </div>
 
