@@ -44,8 +44,18 @@ export default async function VerifyIndexPage() {
       <NavBar />
       <main className="flex-1 bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-          <p className="font-display text-sm tracking-[0.3em] text-orange">COMMITTEE ONLY</p>
-          <h1 className="font-display mt-2 text-3xl text-navy sm:text-4xl">All Registrations</h1>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="font-display text-sm tracking-[0.3em] text-orange">COMMITTEE ONLY</p>
+              <h1 className="font-display mt-2 text-3xl text-navy sm:text-4xl">All Registrations</h1>
+            </div>
+            <a
+              href="/api/registrations/export"
+              className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
+            >
+              Export XLSX
+            </a>
+          </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
