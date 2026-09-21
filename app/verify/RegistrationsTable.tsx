@@ -13,6 +13,8 @@ type Row = {
 
 type SortOption = "newest" | PaymentStatus;
 
+const PAGE_SIZE = 20;
+
 const STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Need Verify",
   verified: "Verified",
@@ -33,6 +35,8 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
   );
   const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
   const [errorIds, setErrorIds] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [lastFilters, setLastFilters] = useState({ search, sortBy });
 
   async function updateStatus(id: string, next: PaymentStatus) {
     const previous = statusMap[id];
@@ -85,6 +89,17 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
     return sorted;
   }, [filteredRows, sortBy, statusMap]);
 
+  let effectivePage = page;
+  if (lastFilters.search !== search || lastFilters.sortBy !== sortBy) {
+    setLastFilters({ search, sortBy });
+    setPage(1);
+    effectivePage = 1;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE));
+  const currentPage = Math.min(effectivePage, totalPages);
+  const pagedRows = sortedRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <>
       <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -124,7 +139,7 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-navy/10">
-            {sortedRows.map(({ registration, participants: groupParticipants, proofUrl }) => {
+            {pagedRows.map(({ registration, participants: groupParticipants, proofUrl }) => {
               const checkedInCount = groupParticipants.filter((p) => p.checked_in).length;
               const status = statusMap[registration.id] ?? "pending";
               return (
@@ -213,6 +228,36 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
         <p className="mt-6 text-sm text-navy/60">No participants match &quot;{search}&quot;.</p>
       )}
       {rows.length === 0 && <p className="mt-6 text-sm text-navy/60">No registrations yet.</p>}
+
+      {sortedRows.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-navy/60">
+          <p>
+            Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, sortedRows.length)} of{" "}
+            {sortedRows.length}
+          </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+              className="rounded-full border border-navy/20 px-4 py-1.5 font-semibold text-navy transition hover:bg-navy/5 disabled:opacity-40"
+            >
+              ← Prev
+            </button>
+            <p className="font-semibold text-navy">
+              Page {currentPage} / {totalPages}
+            </p>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+              className="rounded-full border border-navy/20 px-4 py-1.5 font-semibold text-navy transition hover:bg-navy/5 disabled:opacity-40"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

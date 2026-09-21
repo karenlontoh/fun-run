@@ -254,21 +254,23 @@ export function AddParticipantForm() {
               </option>
             </select>
           </label>
-          <label className="block">
-            <span className="text-sm font-semibold">Metode Pembayaran</span>
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-              className="mt-1 w-full rounded-lg border border-cream/30 bg-white/5 px-4 py-2.5 text-cream focus:border-lime focus:outline-none"
-            >
-              <option value="cash" className="text-navy">
-                Cash
-              </option>
-              <option value="transfer" className="text-navy">
-                Transfer
-              </option>
-            </select>
-          </label>
+          {paid && (
+            <label className="block">
+              <span className="text-sm font-semibold">Metode Pembayaran</span>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                className="mt-1 w-full rounded-lg border border-cream/30 bg-white/5 px-4 py-2.5 text-cream focus:border-lime focus:outline-none"
+              >
+                <option value="cash" className="text-navy">
+                  Cash
+                </option>
+                <option value="transfer" className="text-navy">
+                  Transfer
+                </option>
+              </select>
+            </label>
+          )}
         </div>
       </section>
 
