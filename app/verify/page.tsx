@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { RegistrationsTable } from "@/app/verify/RegistrationsTable";
@@ -49,12 +50,20 @@ export default async function VerifyIndexPage() {
               <p className="font-display text-sm tracking-[0.3em] text-orange">COMMITTEE ONLY</p>
               <h1 className="font-display mt-2 text-3xl text-navy sm:text-4xl">All Registrations</h1>
             </div>
-            <a
-              href="/api/registrations/export"
-              className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
-            >
-              Export XLSX
-            </a>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/verify/tambah-peserta"
+                className="rounded-full bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
+              >
+                + Add Registration
+              </Link>
+              <a
+                href="/api/registrations/export"
+                className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
+              >
+                Export XLSX
+              </a>
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">

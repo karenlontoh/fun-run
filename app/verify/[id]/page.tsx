@@ -2,39 +2,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
-import { CollectRacePackButton } from "@/app/components/CollectRacePackButton";
+import { ParticipantEditor } from "@/app/components/ParticipantEditor";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getPaymentProofSignedUrl } from "@/lib/storage";
 import { formatIDR } from "@/lib/pricing";
 import type { Participant, Registration } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-function ParticipantRow({ p }: { p: Participant }) {
-  return (
-    <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-semibold text-navy">{p.full_name}</p>
-          <p className="text-sm text-navy/60">
-            {p.category} · {p.gender === "L" ? "Male" : "Female"} · Jersey {p.jersey_size}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-navy/50">BIB</p>
-          <p className="font-display text-2xl text-orange">{p.bib_number}</p>
-        </div>
-      </div>
-      <div className="mt-3 border-t border-navy/10 pt-3">
-        <CollectRacePackButton
-          participantId={p.id}
-          initialCheckedIn={p.checked_in}
-          initialCheckedInAt={p.checked_in_at}
-        />
-      </div>
-    </div>
-  );
-}
 
 async function OrderView({ registration }: { registration: Registration }) {
   const { data: participants } = await supabaseServer
@@ -61,7 +35,7 @@ async function OrderView({ registration }: { registration: Registration }) {
 
       <div className="mt-4 space-y-3">
         {(participants ?? []).map((p) => (
-          <ParticipantRow key={p.id} p={p} />
+          <ParticipantEditor key={p.id} participant={p} />
         ))}
       </div>
 
@@ -108,7 +82,7 @@ function PersonalView({
       </div>
 
       <div className="mt-6">
-        <ParticipantRow p={participant} />
+        <ParticipantEditor participant={participant} />
       </div>
 
       <div className="mt-10 rounded-xl border border-navy/10 bg-white px-5 py-4 text-sm text-navy/70">

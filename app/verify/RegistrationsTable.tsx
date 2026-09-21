@@ -108,10 +108,11 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-navy/10 bg-white">
-        <table className="w-full min-w-[1080px] text-left text-sm">
+        <table className="w-full min-w-[1160px] text-left text-sm">
           <thead className="border-b border-navy/10 bg-navy/5 text-xs uppercase tracking-wide text-navy/60">
             <tr>
               <th className="px-4 py-3">Payment Status</th>
+              <th className="px-4 py-3">Method</th>
               <th className="px-4 py-3">Registered</th>
               <th className="px-4 py-3">Contact</th>
               <th className="px-4 py-3">Participants</th>
@@ -146,6 +147,9 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
                         {errorIds[registration.id]}
                       </p>
                     )}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-navy/60 capitalize">
+                    {registration.payment_method}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-navy/60">
                     {new Date(registration.created_at).toLocaleString("en-GB", {

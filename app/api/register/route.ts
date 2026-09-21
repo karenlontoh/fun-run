@@ -199,6 +199,7 @@ export async function POST(request: Request) {
       total_amount: totalAmount,
       payment_proof_path: proofPath,
       payment_status: "pending",
+      payment_method: "transfer",
     };
 
     const pdfBuffer = await generateRegistrationPdf(registration, fullParticipants ?? []);

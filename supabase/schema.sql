@@ -17,13 +17,19 @@ create table if not exists registrations (
   contact_phone text not null,
   total_amount integer not null default 0,
   payment_proof_path text,
-  payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified'))
+  payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified')),
+  payment_method text not null default 'transfer' check (payment_method in ('cash', 'transfer'))
 );
 
 -- If registrations already existed from an earlier version of this schema,
 -- add the payment_status column used by the committee's admin checklist:
 -- 'pending' (needs review) -> 'verified' or 'unverified'.
 alter table registrations add column if not exists payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified'));
+
+-- Tracks how a registration was paid — every public registrant pays by bank
+-- transfer, but registrations entered manually by the committee (e.g. a
+-- walk-in who paid cash) need this recorded too.
+alter table registrations add column if not exists payment_method text not null default 'transfer' check (payment_method in ('cash', 'transfer'));
 
 -- Private bucket for payment proof uploads. The app only ever writes/reads
 -- this via the server-side service role client, so no public bucket or
@@ -41,7 +47,8 @@ create table if not exists participants (
   category text not null,
   jersey_size text not null,
   checked_in boolean not null default false,
-  checked_in_at timestamptz
+  checked_in_at timestamptz,
+  age_group text not null default 'dewasa' check (age_group in ('anak', 'dewasa'))
 );
 
 -- If participants already existed from an earlier version of this schema
@@ -49,16 +56,28 @@ create table if not exists participants (
 -- always assigned explicitly per-category inside create_registration below.
 alter table participants alter column bib_number drop default;
 
+-- Distinguishes kids from adults, since jersey sizing differs between the
+-- two — needed for manually-entered registrations where the committee
+-- picks this directly.
+alter table participants add column if not exists age_group text not null default 'dewasa' check (age_group in ('anak', 'dewasa'));
+
 create index if not exists participants_registration_id_idx on participants(registration_id);
 
 -- Atomically creates one registration plus all of its participants (and their bib numbers)
 -- in a single transaction, so a form submission never leaves a half-written registration behind.
+-- p_payment_status / p_payment_method default to the public self-registration flow's values
+-- (pending review, paid by transfer); the committee's manual-entry form passes explicit values
+-- instead (e.g. 'verified' + 'cash' for a walk-in who already paid). Each participant object in
+-- p_participants may omit 'age_group' — it defaults to 'dewasa' when not supplied, so the public
+-- registration form (which doesn't collect this) doesn't need to change.
 create or replace function create_registration(
   p_contact_name text,
   p_contact_email text,
   p_contact_phone text,
   p_total_amount integer,
-  p_participants jsonb
+  p_participants jsonb,
+  p_payment_status text default 'pending',
+  p_payment_method text default 'transfer'
 )
 returns table (
   registration_id uuid,
@@ -77,18 +96,19 @@ begin
     raise exception 'At least one participant is required';
   end if;
 
-  insert into registrations (contact_name, contact_email, contact_phone, total_amount)
-  values (p_contact_name, p_contact_email, p_contact_phone, p_total_amount)
+  insert into registrations (contact_name, contact_email, contact_phone, total_amount, payment_status, payment_method)
+  values (p_contact_name, p_contact_email, p_contact_phone, p_total_amount, p_payment_status, p_payment_method)
   returning id into v_registration_id;
 
   return query
-  insert into participants (registration_id, full_name, gender, category, jersey_size, bib_number)
+  insert into participants (registration_id, full_name, gender, category, jersey_size, age_group, bib_number)
   select
     v_registration_id,
     p->>'full_name',
     p->>'gender',
     p->>'category',
     p->>'jersey_size',
+    coalesce(p->>'age_group', 'dewasa'),
     case
       when p->>'category' = '5K' then nextval('bib_number_seq_5k')
       else nextval('bib_number_seq_25k')
