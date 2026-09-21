@@ -3,9 +3,9 @@ import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { ParticipantEditor } from "@/app/components/ParticipantEditor";
+import { PaymentEditor } from "@/app/components/PaymentEditor";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getPaymentProofSignedUrl } from "@/lib/storage";
-import { formatIDR } from "@/lib/pricing";
 import type { Participant, Registration } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -45,24 +45,13 @@ async function OrderView({ registration }: { registration: Registration }) {
         <p>{registration.contact_phone}</p>
       </div>
 
-      <div className="mt-4 rounded-xl border border-navy/10 bg-white px-5 py-4">
-        <div className="flex items-center justify-between">
-          <p className="font-semibold text-navy">Total Payment</p>
-          <p className="font-display text-xl text-orange">{formatIDR(registration.total_amount)}</p>
-        </div>
-        {proofUrl ? (
-          <a
-            href={proofUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-sm font-semibold text-navy underline decoration-lime decoration-2 underline-offset-4"
-          >
-            View Payment Proof
-          </a>
-        ) : (
-          <p className="mt-2 text-sm text-navy/60">Payment proof not available.</p>
-        )}
-      </div>
+      <PaymentEditor
+        registrationId={registration.id}
+        totalAmount={registration.total_amount}
+        initialStatus={registration.payment_status}
+        initialMethod={registration.payment_method}
+        proofUrl={proofUrl}
+      />
     </>
   );
 }
