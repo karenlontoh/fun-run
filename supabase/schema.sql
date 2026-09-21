@@ -18,7 +18,11 @@ create table if not exists registrations (
   total_amount integer not null default 0,
   payment_proof_path text,
   payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified')),
-  payment_method text not null default 'transfer' check (payment_method in ('cash', 'transfer'))
+  -- Nullable: unset until a payment has actually happened. Every public
+  -- registrant pays by bank transfer, but a manually-entered registration
+  -- that hasn't been paid yet (still 'pending') has no method to record —
+  -- the committee sets it once the walk-in actually pays (cash or transfer).
+  payment_method text check (payment_method in ('cash', 'transfer'))
 );
 
 -- If registrations already existed from an earlier version of this schema,
@@ -26,10 +30,21 @@ create table if not exists registrations (
 -- 'pending' (needs review) -> 'verified' or 'unverified'.
 alter table registrations add column if not exists payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified'));
 
--- Tracks how a registration was paid — every public registrant pays by bank
--- transfer, but registrations entered manually by the committee (e.g. a
--- walk-in who paid cash) need this recorded too.
-alter table registrations add column if not exists payment_method text not null default 'transfer' check (payment_method in ('cash', 'transfer'));
+-- Tracks how a registration was paid. Originally added as not-null with a
+-- 'transfer' default, which meant every manually-entered "belum bayar"
+-- registration silently got stamped as 'cash' even though no payment had
+-- happened yet — these two lines make it nullable so "no method yet" is a
+-- real state instead of a fake default.
+alter table registrations add column if not exists payment_method text check (payment_method in ('cash', 'transfer'));
+alter table registrations alter column payment_method drop not null;
+alter table registrations alter column payment_method drop default;
+
+-- One-time fix for rows created while the bug above was live: any 'pending'
+-- (i.e. not yet paid) registration that ended up with payment_method='cash'
+-- got that from the old silent default, not a real choice — the public
+-- registration form never sets 'cash', so this only touches admin-entered
+-- rows. Clearing it back to null is a no-op once already fixed.
+update registrations set payment_method = null where payment_status = 'pending' and payment_method = 'cash';
 
 -- Private bucket for payment proof uploads. The app only ever writes/reads
 -- this via the server-side service role client, so no public bucket or

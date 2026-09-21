@@ -87,9 +87,9 @@ export function AddParticipantForm() {
       formData.set("contact_email", contactEmail);
       formData.set("contact_phone", contactPhone);
       formData.set("paid", String(paid));
-      formData.set("payment_method", paymentMethod);
+      formData.set("payment_method", paid ? paymentMethod : "");
       formData.set("participants", JSON.stringify(participants));
-      if (paid && paymentProof) {
+      if (paid && paymentMethod === "transfer" && paymentProof) {
         formData.set("payment_proof", paymentProof);
       }
 
@@ -289,7 +289,7 @@ export function AddParticipantForm() {
               </select>
             </label>
           )}
-          {paid && (
+          {paid && paymentMethod === "transfer" && (
             <label className="block sm:col-span-2">
               <span className="text-sm font-semibold">Bukti Pembayaran (opsional)</span>
               <input

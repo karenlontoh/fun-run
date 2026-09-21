@@ -43,7 +43,8 @@ type ValidatedBody = {
   contact_email: string;
   contact_phone: string;
   paid: boolean;
-  payment_method: PaymentMethod;
+  // Only meaningful once paid — an unpaid registration has no method yet.
+  payment_method: PaymentMethod | null;
   participants: ValidatedParticipant[];
 };
 
@@ -59,8 +60,12 @@ function validateBody(body: Record<string, unknown>): { ok: true; value: Validat
   if (typeof body.paid !== "boolean") {
     return { ok: false, error: "Missing or invalid 'paid' field." };
   }
-  if (!PAYMENT_METHODS.includes(body.payment_method as PaymentMethod)) {
-    return { ok: false, error: "Missing or invalid 'payment_method' field." };
+  let payment_method: PaymentMethod | null = null;
+  if (body.paid) {
+    if (!PAYMENT_METHODS.includes(body.payment_method as PaymentMethod)) {
+      return { ok: false, error: "Missing or invalid 'payment_method' field." };
+    }
+    payment_method = body.payment_method as PaymentMethod;
   }
 
   if (!Array.isArray(body.participants) || body.participants.length === 0) {
@@ -112,7 +117,7 @@ function validateBody(body: Record<string, unknown>): { ok: true; value: Validat
       contact_email,
       contact_phone,
       paid: body.paid,
-      payment_method: body.payment_method as PaymentMethod,
+      payment_method,
       participants,
     },
   };
@@ -154,7 +159,7 @@ export async function POST(request: Request) {
 
   const paymentProof = formData.get("payment_proof");
   let extension: string | null = null;
-  if (paymentProof instanceof File && paymentProof.size > 0) {
+  if (payment_method === "transfer" && paymentProof instanceof File && paymentProof.size > 0) {
     if (paymentProof.size > MAX_FILE_SIZE) {
       return NextResponse.json({ error: "Payment proof must be under 5MB." }, { status: 400 });
     }

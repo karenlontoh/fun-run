@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatIDR } from "@/lib/pricing";
-import { PAYMENT_METHODS, PAYMENT_STATUSES, type PaymentMethod, type PaymentStatus } from "@/lib/types";
+import { PAYMENT_STATUSES, type PaymentMethod, type PaymentStatus } from "@/lib/types";
 
 const STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Need Verify",
@@ -21,7 +21,7 @@ type Props = {
   registrationId: string;
   totalAmount: number;
   initialStatus: PaymentStatus;
-  initialMethod: PaymentMethod;
+  initialMethod: PaymentMethod | null;
   proofUrl: string | null;
 };
 
@@ -30,7 +30,7 @@ export function PaymentEditor({ registrationId, totalAmount, initialStatus, init
   const [current, setCurrent] = useState({ status: initialStatus, method: initialMethod });
   const [editing, setEditing] = useState(false);
   const [status, setStatus] = useState<PaymentStatus>(current.status);
-  const [method, setMethod] = useState<PaymentMethod>(current.method);
+  const [method, setMethod] = useState<PaymentMethod | null>(current.method);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +49,8 @@ export function PaymentEditor({ registrationId, totalAmount, initialStatus, init
     try {
       const formData = new FormData();
       formData.set("status", status);
-      formData.set("payment_method", method);
-      if (file) formData.set("payment_proof", file);
+      formData.set("payment_method", method ?? "");
+      if (method === "transfer" && file) formData.set("payment_proof", file);
 
       const res = await fetch(`/api/registrations/${registrationId}/payment`, {
         method: "PATCH",
@@ -63,7 +63,7 @@ export function PaymentEditor({ registrationId, totalAmount, initialStatus, init
       }
       setCurrent({ status, method });
       setEditing(false);
-      if (file) router.refresh();
+      if (method === "transfer" && file) router.refresh();
     } catch {
       setError("Network error. Try again.");
     } finally {
@@ -96,28 +96,28 @@ export function PaymentEditor({ registrationId, totalAmount, initialStatus, init
           <label className="block">
             <span className="text-xs font-semibold text-navy/60">Payment Method</span>
             <select
-              value={method}
-              onChange={(e) => setMethod(e.target.value as PaymentMethod)}
+              value={method ?? ""}
+              onChange={(e) => setMethod(e.target.value === "" ? null : (e.target.value as PaymentMethod))}
               className="mt-1 w-full rounded-lg border border-navy/20 px-3 py-2 text-sm capitalize focus:border-orange focus:outline-none"
             >
-              {PAYMENT_METHODS.map((m) => (
-                <option key={m} value={m} className="capitalize">
-                  {m}
-                </option>
-              ))}
+              <option value="">Belum Ada</option>
+              <option value="cash">Cash</option>
+              <option value="transfer">Transfer</option>
             </select>
           </label>
-          <label className="block sm:col-span-2">
-            <span className="text-xs font-semibold text-navy/60">
-              {proofUrl ? "Replace Payment Proof (optional)" : "Upload Payment Proof (optional)"}
-            </span>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="mt-1 block w-full rounded-lg border border-navy/20 px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-orange file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-cream"
-            />
-          </label>
+          {method === "transfer" && (
+            <label className="block sm:col-span-2">
+              <span className="text-xs font-semibold text-navy/60">
+                {proofUrl ? "Replace Payment Proof (optional)" : "Upload Payment Proof (optional)"}
+              </span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                className="mt-1 block w-full rounded-lg border border-navy/20 px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-orange file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-cream"
+              />
+            </label>
+          )}
         </div>
         {error && <p className="mt-2 text-xs font-semibold text-orange-dark">{error}</p>}
         <div className="mt-4 flex gap-3">
@@ -152,10 +152,10 @@ export function PaymentEditor({ registrationId, totalAmount, initialStatus, init
         <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_CLASSES[current.status]}`}>
           {STATUS_LABEL[current.status]}
         </span>
-        <span className="text-xs capitalize text-navy/60">{current.method}</span>
+        {current.method && <span className="text-xs capitalize text-navy/60">{current.method}</span>}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-4">
-        {proofUrl ? (
+        {current.method === "transfer" && proofUrl ? (
           <a
             href={proofUrl}
             target="_blank"

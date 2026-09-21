@@ -63,7 +63,9 @@ export type Registration = {
   total_amount: number;
   payment_proof_path: string | null;
   payment_status: PaymentStatus;
-  payment_method: PaymentMethod;
+  // null until a payment has actually happened (e.g. a manually-entered
+  // registration still marked "belum bayar").
+  payment_method: PaymentMethod | null;
 };
 
 export type RegistrationWithParticipants = Registration & {

@@ -61,7 +61,7 @@ export async function GET() {
       sheet.addRow({
         registered_at: new Date(registration.created_at).toLocaleString("en-GB"),
         payment_status: registration.payment_status,
-        payment_method: registration.payment_method,
+        payment_method: registration.payment_method ?? "",
         contact_name: registration.contact_name,
         contact_email: registration.contact_email,
         contact_phone: registration.contact_phone,
@@ -73,7 +73,7 @@ export async function GET() {
       sheet.addRow({
         registered_at: new Date(registration.created_at).toLocaleString("en-GB"),
         payment_status: registration.payment_status,
-        payment_method: registration.payment_method,
+        payment_method: registration.payment_method ?? "",
         contact_name: registration.contact_name,
         contact_email: registration.contact_email,
         contact_phone: registration.contact_phone,

@@ -40,6 +40,16 @@ export default async function VerifyIndexPage() {
   const totalCollected = (registrations ?? []).reduce((sum, r) => sum + r.total_amount, 0);
   const totalCheckedIn = (participants ?? []).filter((p) => p.checked_in).length;
 
+  const countBy = (category: string, gender: string) =>
+    (participants ?? []).filter((p) => p.category === category && p.gender === gender).length;
+
+  const categoryGenderStats = [
+    { label: "2.5K — Male", count: countBy("2.5K", "L") },
+    { label: "2.5K — Female", count: countBy("2.5K", "P") },
+    { label: "5K — Male", count: countBy("5K", "L") },
+    { label: "5K — Female", count: countBy("5K", "P") },
+  ];
+
   return (
     <>
       <NavBar />
@@ -85,6 +95,15 @@ export default async function VerifyIndexPage() {
               <p className="text-xs text-navy/50">Total Collected</p>
               <p className="font-display text-2xl text-orange">{formatIDR(totalCollected)}</p>
             </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {categoryGenderStats.map(({ label, count }) => (
+              <div key={label} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+                <p className="text-xs text-navy/50">{label}</p>
+                <p className="font-display text-2xl text-navy">{count}</p>
+              </div>
+            ))}
           </div>
 
           <RegistrationsTable rows={rows} />

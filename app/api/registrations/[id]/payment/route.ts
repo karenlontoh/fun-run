@@ -28,22 +28,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const status = formData.get("status");
-  const paymentMethod = formData.get("payment_method");
+  const rawMethod = formData.get("payment_method");
   if (!PAYMENT_STATUSES.includes(status as PaymentStatus)) {
     return NextResponse.json({ error: "Missing or invalid 'status' field." }, { status: 400 });
   }
-  if (!PAYMENT_METHODS.includes(paymentMethod as PaymentMethod)) {
-    return NextResponse.json({ error: "Missing or invalid 'payment_method' field." }, { status: 400 });
+  // Empty string means "not set yet" — a real state, not an omission.
+  let payment_method: PaymentMethod | null = null;
+  if (rawMethod !== "" && rawMethod !== null) {
+    if (!PAYMENT_METHODS.includes(rawMethod as PaymentMethod)) {
+      return NextResponse.json({ error: "Invalid 'payment_method' field." }, { status: 400 });
+    }
+    payment_method = rawMethod as PaymentMethod;
   }
 
   const { id } = await params;
-  const update: Record<string, string> = {
+  const update: Record<string, string | null> = {
     payment_status: status as PaymentStatus,
-    payment_method: paymentMethod as PaymentMethod,
+    payment_method,
   };
 
   const paymentProof = formData.get("payment_proof");
-  if (paymentProof instanceof File && paymentProof.size > 0) {
+  if (payment_method === "transfer" && paymentProof instanceof File && paymentProof.size > 0) {
     if (paymentProof.size > MAX_FILE_SIZE) {
       return NextResponse.json({ error: "Payment proof must be under 5MB." }, { status: 400 });
     }

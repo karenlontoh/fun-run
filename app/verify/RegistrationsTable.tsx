@@ -164,7 +164,7 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
                     )}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-navy/60 capitalize">
-                    {registration.payment_method}
+                    {registration.payment_method ?? <span className="text-navy/30">—</span>}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-navy/60">
                     {new Date(registration.created_at).toLocaleString("en-GB", {
