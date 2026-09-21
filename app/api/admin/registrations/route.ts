@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { VERIFY_AUTH_COOKIE, isValidVerifyAuthCookie } from "@/lib/verify-auth";
 import { supabaseServer } from "@/lib/supabase-server";
+import { uploadPaymentProof } from "@/lib/storage";
 import { calculateTransferAmount } from "@/lib/pricing";
 import { generateRegistrationPdf } from "@/lib/pdf";
 import { sendRegistrationEmail } from "@/lib/email";
@@ -21,6 +22,13 @@ import {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALL_JERSEY_SIZES = new Set<string>([...JERSEY_SIZES, ...JERSEY_SIZES_CHILD]);
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_FILE_TYPES: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "application/pdf": "pdf",
+};
 
 type ValidatedParticipant = {
   full_name: string;
@@ -117,16 +125,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
     return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
   }
 
-  const result = validateBody(body);
+  let participantsRaw: unknown;
+  try {
+    participantsRaw = JSON.parse(String(formData.get("participants") ?? "[]"));
+  } catch {
+    return NextResponse.json({ error: "Invalid participant data." }, { status: 400 });
+  }
+
+  const result = validateBody({
+    contact_name: formData.get("contact_name"),
+    contact_email: formData.get("contact_email"),
+    contact_phone: formData.get("contact_phone"),
+    paid: formData.get("paid") === "true",
+    payment_method: formData.get("payment_method"),
+    participants: participantsRaw,
+  });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
   const { contact_name, contact_email, contact_phone, paid, payment_method, participants } = result.value;
+
+  const paymentProof = formData.get("payment_proof");
+  let extension: string | null = null;
+  if (paymentProof instanceof File && paymentProof.size > 0) {
+    if (paymentProof.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "Payment proof must be under 5MB." }, { status: 400 });
+    }
+    extension = ALLOWED_FILE_TYPES[paymentProof.type];
+    if (!extension) {
+      return NextResponse.json({ error: "Payment proof must be JPG, PNG, WEBP, or PDF." }, { status: 400 });
+    }
+  }
 
   const totalAmount = calculateTransferAmount(participants.map((p) => p.category));
   const paymentStatus = paid ? "verified" : "pending";
@@ -155,6 +191,26 @@ export async function POST(request: Request) {
   }
 
   const registrationId = rows[0].registration_id;
+  let proofPath: string | null = null;
+
+  if (extension && paymentProof instanceof File) {
+    const candidatePath = `${registrationId}/payment-proof.${extension}`;
+    const { error: uploadError } = await uploadPaymentProof(candidatePath, paymentProof);
+    if (uploadError) {
+      // The registration itself already succeeded — an upload hiccup shouldn't fail the request.
+      console.error("uploadPaymentProof failed", uploadError);
+    } else {
+      const { error: updateError } = await supabaseServer
+        .from("registrations")
+        .update({ payment_proof_path: candidatePath })
+        .eq("id", registrationId);
+      if (updateError) {
+        console.error("update payment_proof_path failed", updateError);
+      } else {
+        proofPath = candidatePath;
+      }
+    }
+  }
 
   try {
     const { data: fullParticipants } = await supabaseServer
@@ -171,7 +227,7 @@ export async function POST(request: Request) {
       contact_email,
       contact_phone,
       total_amount: totalAmount,
-      payment_proof_path: null,
+      payment_proof_path: proofPath,
       payment_status: paymentStatus,
       payment_method,
     };

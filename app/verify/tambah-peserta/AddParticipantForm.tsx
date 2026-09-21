@@ -24,6 +24,8 @@ function emptyParticipant(): ParticipantForm {
   return { full_name: "", gender: "L", category: CATEGORIES[0], age_group: "dewasa", jersey_size: "M" };
 }
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 export function AddParticipantForm() {
   const router = useRouter();
   const [contactName, setContactName] = useState("");
@@ -32,6 +34,7 @@ export function AddParticipantForm() {
   const [participants, setParticipants] = useState<ParticipantForm[]>([emptyParticipant()]);
   const [paid, setPaid] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,22 +65,37 @@ export function AddParticipantForm() {
     setParticipants((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    if (file && file.size > MAX_FILE_SIZE) {
+      setError("Payment proof file must be under 5MB.");
+      e.target.value = "";
+      setPaymentProof(null);
+      return;
+    }
+    setError(null);
+    setPaymentProof(file);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
+      const formData = new FormData();
+      formData.set("contact_name", contactName);
+      formData.set("contact_email", contactEmail);
+      formData.set("contact_phone", contactPhone);
+      formData.set("paid", String(paid));
+      formData.set("payment_method", paymentMethod);
+      formData.set("participants", JSON.stringify(participants));
+      if (paid && paymentProof) {
+        formData.set("payment_proof", paymentProof);
+      }
+
       const res = await fetch("/api/admin/registrations", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contact_name: contactName,
-          contact_email: contactEmail,
-          contact_phone: contactPhone,
-          paid,
-          payment_method: paymentMethod,
-          participants,
-        }),
+        body: formData,
       });
       const data = await res.json();
       if (!res.ok) {
@@ -269,6 +287,18 @@ export function AddParticipantForm() {
                   Transfer
                 </option>
               </select>
+            </label>
+          )}
+          {paid && (
+            <label className="block sm:col-span-2">
+              <span className="text-sm font-semibold">Bukti Pembayaran (opsional)</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,application/pdf"
+                onChange={handleFileChange}
+                className="mt-1 block w-full rounded-lg border border-cream/30 bg-white/5 px-4 py-2.5 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-orange file:px-4 file:py-2 file:font-semibold file:text-cream"
+              />
+              <span className="mt-1 block text-xs text-cream/60">JPG, PNG, or PDF format, max 5MB.</span>
             </label>
           )}
         </div>
