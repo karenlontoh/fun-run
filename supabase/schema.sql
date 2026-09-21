@@ -78,6 +78,15 @@ alter table participants add column if not exists age_group text not null defaul
 
 create index if not exists participants_registration_id_idx on participants(registration_id);
 
+-- The original 5-parameter version of create_registration (before
+-- p_payment_status/p_payment_method existed) must be dropped explicitly —
+-- Postgres treats a changed parameter list as a distinct overload rather
+-- than replacing it, so without this, calls with only the original 5
+-- arguments (i.e. every public self-registration) became ambiguous between
+-- the two overloads and started failing with PGRST203. This line is safe
+-- to re-run: it's a no-op once the old overload is already gone.
+drop function if exists create_registration(text, text, text, integer, jsonb);
+
 -- Atomically creates one registration plus all of its participants (and their bib numbers)
 -- in a single transaction, so a form submission never leaves a half-written registration behind.
 -- p_payment_status / p_payment_method default to the public self-registration flow's values
