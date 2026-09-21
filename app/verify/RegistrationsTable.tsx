@@ -27,16 +27,47 @@ const STATUS_CLASSES: Record<PaymentStatus, string> = {
   unverified: "border-red-200 bg-red-100 text-red-700",
 };
 
-export function RegistrationsTable({ rows }: { rows: Row[] }) {
+export function RegistrationsTable({ rows: initialRows }: { rows: Row[] }) {
+  const [rows, setRows] = useState(initialRows);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [statusMap, setStatusMap] = useState<Record<string, PaymentStatus>>(() =>
-    Object.fromEntries(rows.map((r) => [r.registration.id, r.registration.payment_status]))
+    Object.fromEntries(initialRows.map((r) => [r.registration.id, r.registration.payment_status]))
   );
   const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
   const [errorIds, setErrorIds] = useState<Record<string, string>>({});
+  const [deletingIds, setDeletingIds] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
   const [lastFilters, setLastFilters] = useState({ search, sortBy });
+
+  async function handleDelete(id: string, contactName: string) {
+    if (!window.confirm(`Delete the registration for "${contactName}"? This cannot be undone.`)) {
+      return;
+    }
+    setDeletingIds((prev) => ({ ...prev, [id]: true }));
+    setErrorIds((prev) => {
+      const rest = { ...prev };
+      delete rest[id];
+      return rest;
+    });
+    try {
+      const res = await fetch(`/api/registrations/${id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setErrorIds((prev) => ({ ...prev, [id]: data?.error ?? "Failed to delete. Try again." }));
+        return;
+      }
+      setRows((prev) => prev.filter((r) => r.registration.id !== id));
+    } catch {
+      setErrorIds((prev) => ({ ...prev, [id]: "Network error. Try again." }));
+    } finally {
+      setDeletingIds((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }
+  }
 
   async function updateStatus(id: string, next: PaymentStatus) {
     const previous = statusMap[id];
@@ -123,7 +154,7 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-navy/10 bg-white">
-        <table className="w-full min-w-[1160px] text-left text-sm">
+        <table className="w-full min-w-[1240px] text-left text-sm">
           <thead className="border-b border-navy/10 bg-navy/5 text-xs uppercase tracking-wide text-navy/60">
             <tr>
               <th className="px-4 py-3">Payment Status</th>
@@ -135,6 +166,7 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Payment Proof</th>
               <th className="px-4 py-3">PDF</th>
+              <th className="px-4 py-3"></th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -216,6 +248,21 @@ export function RegistrationsTable({ rows }: { rows: Row[] }) {
                     >
                       View Group →
                     </Link>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(registration.id, registration.contact_name)}
+                      disabled={deletingIds[registration.id]}
+                      className="font-semibold text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      {deletingIds[registration.id] ? "Deleting..." : "Delete"}
+                    </button>
+                    {errorIds[registration.id] && (
+                      <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
+                        {errorIds[registration.id]}
+                      </p>
+                    )}
                   </td>
                 </tr>
               );

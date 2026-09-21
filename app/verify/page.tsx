@@ -67,6 +67,7 @@ export default async function VerifyIndexPage() {
               >
                 + Add Registration
               </Link>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- this is a file download, not page navigation */}
               <a
                 href="/api/registrations/export"
                 className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"

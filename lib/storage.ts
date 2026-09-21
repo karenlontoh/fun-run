@@ -15,6 +15,11 @@ export async function uploadPaymentProof(
   return { error: error?.message ?? null };
 }
 
+export async function deletePaymentProof(path: string): Promise<{ error: string | null }> {
+  const { error } = await supabaseServer.storage.from(PAYMENT_PROOF_BUCKET).remove([path]);
+  return { error: error?.message ?? null };
+}
+
 export async function getPaymentProofSignedUrl(path: string): Promise<string | null> {
   const { data } = await supabaseServer.storage
     .from(PAYMENT_PROOF_BUCKET)
