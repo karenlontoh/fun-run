@@ -108,11 +108,12 @@ export default function Home() {
               <p className="font-display mt-4 text-xl tracking-wide text-lime sm:text-2xl">
                 {EVENT.tagline.toUpperCase()}
               </p>
-              <p className="mx-auto mt-4 max-w-4xl text-base text-cream/90 sm:text-lg">
-                Two distances, one big celebration, zero pressure. Whether you&apos;re taking the
-                2.5K or pushing for the 5K, this is a fun, non-competitive run — walk it, jog it,
-                or run it. Join the {EVENT.church} community for a morning of movement, faith, and
-                fun, with an exclusive jersey and full race pack for every runner.
+              <p className="mx-auto mt-4 max-w-5xl text-base text-cream/90 sm:text-lg">
+                Two distances, one big celebration, zero pressure. Whether you&apos;re taking the 2.5K or pushing for the 5K,
+                <br />
+                this is a fun, non-competitive run — walk it, jog it, or run it. Join the {EVENT.church} community for a
+                <br />
+                morning of movement, faith, and fun, with an exclusive jersey and full race pack for every runner.
               </p>
             </Reveal>
             <Reveal delay={300}>
