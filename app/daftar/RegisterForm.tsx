@@ -229,8 +229,8 @@ export function RegisterForm() {
                     onChange={(e) => updateAgeGroup(i, e.target.value as AgeGroup)}
                     className="mt-1 w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
                   >
-                    <option value="dewasa">Dewasa</option>
-                    <option value="anak">Anak</option>
+                    <option value="dewasa">Adult</option>
+                    <option value="anak">Kids</option>
                   </select>
                 </label>
                 <label className="block">

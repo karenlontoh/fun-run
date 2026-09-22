@@ -158,7 +158,7 @@ export function AddParticipantForm() {
           Name can be filled with &quot;TBA&quot; for now and edited later from the group&apos;s page.
         </p>
 
-        <SizeChartTable />
+        <SizeChartTable locale="id" />
 
         <div className="mt-5 space-y-5">
           {participants.map((p, i) => {

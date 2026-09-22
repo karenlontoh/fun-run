@@ -34,6 +34,14 @@ export const ADULT_SIZE_CHART: { size: string; length: number; width: number; sl
   { size: "XXXL", length: 81, width: 60, sleeve: 25 },
 ];
 
+// Kids ("anak") jersey measurements in cm — no sleeve measurement given for this range.
+export const CHILD_SIZE_CHART: { size: string; length: number; width: number }[] = [
+  { size: "S", length: 54, width: 40 },
+  { size: "M", length: 57, width: 43 },
+  { size: "L", length: 60, width: 46 },
+  { size: "XL", length: 63, width: 49 },
+];
+
 export type ParticipantInput = {
   full_name: string;
   gender: Gender;
