@@ -9,7 +9,9 @@ export const EVENT = {
   meetingPoint: "GPIB Paulus Jakarta, Jl. Taman Sunda Kelapa No. 12",
   address: "Jl. Taman Sunda Kelapa No. 12",
   registrationOpen: "9 August 2026",
-  registrationClose: "20 September 2026",
+  registrationClose: "30 September 2026",
+  // ISO timestamp (WIB, UTC+7) the countdown on the homepage counts down to.
+  registrationCloseAt: "2026-09-30T23:59:59+07:00",
   contactEmail: "funrun@gpibpaulusjakarta.org",
   contactPhone: "0812-3456-7890",
   instagram: "@paulusfunrun",
