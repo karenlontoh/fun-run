@@ -6,6 +6,7 @@ import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
+import { CountdownTimer } from "@/app/components/CountdownTimer";
 import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
@@ -94,7 +95,7 @@ export default function Home() {
           >
             26
           </span>
-          <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
+          <div className="relative mx-auto max-w-6xl px-5 py-20 text-center sm:py-28">
             <Reveal delay={100}>
               <h1 className="font-display text-6xl leading-[0.82] tracking-normal sm:text-8xl">
                 <span className="block text-orange">PAULUS</span>
@@ -107,7 +108,7 @@ export default function Home() {
               <p className="font-display mt-4 text-xl tracking-wide text-lime sm:text-2xl">
                 {EVENT.tagline.toUpperCase()}
               </p>
-              <p className="mt-4 max-w-xl text-base text-cream/90 sm:text-lg">
+              <p className="mx-auto mt-4 max-w-xl text-base text-cream/90 sm:text-lg">
                 Two distances, one big celebration, zero pressure. Whether you&apos;re taking the
                 2.5K or pushing for the 5K, this is a fun, non-competitive run — walk it, jog it,
                 or run it. Join the {EVENT.church} community for a morning of movement, faith, and
@@ -115,7 +116,7 @@ export default function Home() {
               </p>
             </Reveal>
             <Reveal delay={300}>
-              <dl className="mt-8 grid max-w-md grid-cols-2 gap-4 text-sm sm:text-base">
+              <dl className="mx-auto mt-8 grid max-w-md grid-cols-2 gap-4 text-sm sm:text-base">
                 <div>
                   <dt className="text-cream/60">Date</dt>
                   <dd className="font-semibold">{EVENT.date}</dd>
@@ -136,8 +137,13 @@ export default function Home() {
                 </div>
               </dl>
             </Reveal>
+            <Reveal delay={350}>
+              <div className="mt-8 flex justify-center">
+                <CountdownTimer targetDate={EVENT.registrationCloseAt} />
+              </div>
+            </Reveal>
             <Reveal delay={400}>
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <Link
                   href="/daftar"
                   className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
