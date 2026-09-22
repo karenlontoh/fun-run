@@ -2,19 +2,21 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CATEGORIES, JERSEY_SIZES, type Category, type Gender, type JerseySize } from "@/lib/types";
+import { CATEGORIES, jerseySizesFor, type AgeGroup, type Category, type Gender } from "@/lib/types";
 import { calculateTransferAmount, formatIDR, getCategoryPrice } from "@/lib/pricing";
 import { PAYMENT } from "@/lib/event-config";
+import { SizeChartTable } from "@/app/components/SizeChartTable";
 
 type ParticipantForm = {
   full_name: string;
   gender: Gender;
   category: Category;
-  jersey_size: JerseySize;
+  age_group: AgeGroup;
+  jersey_size: string;
 };
 
 function emptyParticipant(): ParticipantForm {
-  return { full_name: "", gender: "L", category: CATEGORIES[0], jersey_size: "M" };
+  return { full_name: "", gender: "L", category: CATEGORIES[0], age_group: "dewasa", jersey_size: "M" };
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -37,6 +39,16 @@ export function RegisterForm() {
 
   function updateParticipant(index: number, patch: Partial<ParticipantForm>) {
     setParticipants((prev) => prev.map((p, i) => (i === index ? { ...p, ...patch } : p)));
+  }
+
+  function updateAgeGroup(index: number, ageGroup: AgeGroup) {
+    setParticipants((prev) =>
+      prev.map((p, i) => {
+        if (i !== index) return p;
+        const options = jerseySizesFor(ageGroup);
+        return { ...p, age_group: ageGroup, jersey_size: options.includes(p.jersey_size) ? p.jersey_size : options[0] };
+      })
+    );
   }
 
   function addParticipant() {
@@ -155,8 +167,12 @@ export function RegisterForm() {
           </div>
         </div>
 
+        <SizeChartTable />
+
         <div className="mt-5 space-y-5">
-          {participants.map((p, i) => (
+          {participants.map((p, i) => {
+            const sizeOptions = jerseySizesFor(p.age_group);
+            return (
             <div key={i} className="relative rounded-2xl border border-navy/15 bg-white p-5">
               <div className="flex items-center justify-between">
                 <p className="font-display text-lg text-orange">PARTICIPANT {i + 1}</p>
@@ -207,13 +223,24 @@ export function RegisterForm() {
                   </select>
                 </label>
                 <label className="block">
+                  <span className="text-sm font-semibold text-navy">Age Group</span>
+                  <select
+                    value={p.age_group}
+                    onChange={(e) => updateAgeGroup(i, e.target.value as AgeGroup)}
+                    className="mt-1 w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
+                  >
+                    <option value="dewasa">Dewasa</option>
+                    <option value="anak">Anak</option>
+                  </select>
+                </label>
+                <label className="block">
                   <span className="text-sm font-semibold text-navy">Jersey Size</span>
                   <select
                     value={p.jersey_size}
-                    onChange={(e) => updateParticipant(i, { jersey_size: e.target.value as JerseySize })}
+                    onChange={(e) => updateParticipant(i, { jersey_size: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
                   >
-                    {JERSEY_SIZES.map((s) => (
+                    {sizeOptions.map((s) => (
                       <option key={s} value={s}>
                         {s}
                       </option>
@@ -222,7 +249,8 @@ export function RegisterForm() {
                 </label>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <button

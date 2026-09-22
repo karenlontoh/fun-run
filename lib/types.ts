@@ -14,7 +14,7 @@ export type AgeGroup = (typeof AGE_GROUPS)[number];
 
 // Adults have the full range; kids ('anak') top out at XL. Jersey size isn't
 // DB-constrained to either list, so this only shapes the form UI.
-export const JERSEY_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
+export const JERSEY_SIZES = ["S", "M", "L", "XL", "XXL", "XXXL"] as const;
 export type JerseySize = (typeof JERSEY_SIZES)[number];
 
 export const JERSEY_SIZES_CHILD = ["S", "M", "L", "XL"] as const;
@@ -23,6 +23,16 @@ export type ChildJerseySize = (typeof JERSEY_SIZES_CHILD)[number];
 export function jerseySizesFor(ageGroup: AgeGroup): readonly string[] {
   return ageGroup === "anak" ? JERSEY_SIZES_CHILD : JERSEY_SIZES;
 }
+
+// Adult ("dewasa") jersey measurements in cm, ±1–2cm tolerance.
+export const ADULT_SIZE_CHART: { size: string; length: number; width: number; sleeve: number }[] = [
+  { size: "S", length: 66, width: 45, sleeve: 20 },
+  { size: "M", length: 69, width: 48, sleeve: 21 },
+  { size: "L", length: 72, width: 51, sleeve: 22 },
+  { size: "XL", length: 75, width: 54, sleeve: 23 },
+  { size: "XXL", length: 78, width: 57, sleeve: 24 },
+  { size: "XXXL", length: 81, width: 60, sleeve: 25 },
+];
 
 export type ParticipantInput = {
   full_name: string;

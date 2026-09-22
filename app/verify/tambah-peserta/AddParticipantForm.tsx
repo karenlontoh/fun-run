@@ -11,6 +11,7 @@ import {
   type PaymentMethod,
 } from "@/lib/types";
 import { calculateTransferAmount, formatIDR, getCategoryPrice } from "@/lib/pricing";
+import { SizeChartTable } from "@/app/components/SizeChartTable";
 
 type ParticipantForm = {
   full_name: string;
@@ -156,6 +157,8 @@ export function AddParticipantForm() {
         <p className="mt-1 text-sm text-navy/60">
           Name can be filled with &quot;TBA&quot; for now and edited later from the group&apos;s page.
         </p>
+
+        <SizeChartTable />
 
         <div className="mt-5 space-y-5">
           {participants.map((p, i) => {

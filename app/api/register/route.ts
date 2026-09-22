@@ -5,8 +5,11 @@ import { calculateTransferAmount } from "@/lib/pricing";
 import { generateRegistrationPdf } from "@/lib/pdf";
 import { sendRegistrationEmail } from "@/lib/email";
 import {
+  AGE_GROUPS,
   CATEGORIES,
   JERSEY_SIZES,
+  JERSEY_SIZES_CHILD,
+  type AgeGroup,
   type Category,
   type JerseySize,
   type Participant,
@@ -22,6 +25,7 @@ const ALLOWED_FILE_TYPES: Record<string, string> = {
   "image/webp": "webp",
   "application/pdf": "pdf",
 };
+const ALL_JERSEY_SIZES = new Set<string>([...JERSEY_SIZES, ...JERSEY_SIZES_CHILD]);
 
 function validateFields(body: {
   contact_name: unknown;
@@ -54,6 +58,7 @@ function validateFields(body: {
     const gender = p.gender;
     const category = p.category;
     const jersey_size = p.jersey_size;
+    const age_group = p.age_group;
 
     if (!full_name) return { ok: false, error: `Participant ${i + 1}'s name is required.` };
     if (gender !== "L" && gender !== "P") {
@@ -62,8 +67,11 @@ function validateFields(body: {
     if (typeof category !== "string" || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
       return { ok: false, error: `Participant ${i + 1}'s category is invalid.` };
     }
-    if (typeof jersey_size !== "string" || !JERSEY_SIZES.includes(jersey_size as (typeof JERSEY_SIZES)[number])) {
+    if (typeof jersey_size !== "string" || !ALL_JERSEY_SIZES.has(jersey_size)) {
       return { ok: false, error: `Participant ${i + 1}'s jersey size is invalid.` };
+    }
+    if (age_group !== undefined && !AGE_GROUPS.includes(age_group as AgeGroup)) {
+      return { ok: false, error: `Participant ${i + 1}'s age group is invalid.` };
     }
 
     participants.push({
@@ -71,6 +79,7 @@ function validateFields(body: {
       gender,
       category: category as Category,
       jersey_size: jersey_size as JerseySize,
+      age_group: age_group as AgeGroup | undefined,
     });
   }
 
