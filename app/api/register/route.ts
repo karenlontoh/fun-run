@@ -3,7 +3,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { uploadPaymentProof } from "@/lib/storage";
 import { calculateTransferAmount } from "@/lib/pricing";
 import { generateRegistrationPdf } from "@/lib/pdf";
-import { sendRegistrationEmail } from "@/lib/email";
+import { sendAdminNotificationEmail, sendRegistrationEmail } from "@/lib/email";
 import {
   AGE_GROUPS,
   CATEGORIES,
@@ -220,6 +220,14 @@ export async function POST(request: Request) {
     });
     if (emailError) {
       console.error("sendRegistrationEmail failed", emailError);
+    }
+
+    const { error: notifyError } = await sendAdminNotificationEmail({
+      registration,
+      participants: fullParticipants ?? [],
+    });
+    if (notifyError) {
+      console.error("sendAdminNotificationEmail failed", notifyError);
     }
   } catch (err) {
     // The registration itself already succeeded — a PDF/email hiccup shouldn't fail the request.

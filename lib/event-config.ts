@@ -15,6 +15,8 @@ export const EVENT = {
   contactEmail: "funrun@gpibpaulusjakarta.org",
   contactPhone: "0812-3456-7890",
   instagram: "@paulusfunrun",
+  // Committee inbox that gets notified whenever a new registration comes in.
+  notificationEmail: "paulusfunrun.peg@gmail.com",
 } as const;
 
 // Edit bank transfer details here — shown on the registration form as payment instructions.
