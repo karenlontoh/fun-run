@@ -40,13 +40,21 @@ export default async function VerifyIndexPage() {
   const totalCollected = (registrations ?? []).reduce((sum, r) => sum + r.total_amount, 0);
   const totalCheckedIn = (participants ?? []).filter((p) => p.checked_in).length;
 
-  const verifiedRegistrationIds = new Set(
-    (registrations ?? []).filter((r) => r.payment_status === "verified").map((r) => r.id)
-  );
-  const verifiedParticipants = (participants ?? []).filter((p) =>
-    verifiedRegistrationIds.has(p.registration_id)
-  );
+  const registrationIdsByStatus = (status: string) =>
+    new Set((registrations ?? []).filter((r) => r.payment_status === status).map((r) => r.id));
+  const pendingRegistrationIds = registrationIdsByStatus("pending");
+  const verifiedRegistrationIds = registrationIdsByStatus("verified");
+  const unverifiedRegistrationIds = registrationIdsByStatus("unverified");
+
+  const participantsByStatusIds = (ids: Set<string>) =>
+    (participants ?? []).filter((p) => ids.has(p.registration_id));
+  const pendingParticipants = participantsByStatusIds(pendingRegistrationIds);
+  const verifiedParticipants = participantsByStatusIds(verifiedRegistrationIds);
+  const unverifiedParticipants = participantsByStatusIds(unverifiedRegistrationIds);
+
+  const totalPendingParticipants = pendingParticipants.length;
   const totalVerifiedParticipants = verifiedParticipants.length;
+  const totalUnverifiedParticipants = unverifiedParticipants.length;
 
   const countBy = (category: string, gender: string) =>
     verifiedParticipants.filter((p) => p.category === category && p.gender === gender).length;
@@ -85,7 +93,7 @@ export default async function VerifyIndexPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Registrations</p>
               <p className="font-display text-2xl text-navy">{rows.length}</p>
@@ -93,10 +101,6 @@ export default async function VerifyIndexPage() {
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Participants</p>
               <p className="font-display text-2xl text-navy">{totalParticipants}</p>
-            </div>
-            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
-              <p className="text-xs text-navy/50">Participants Verified</p>
-              <p className="font-display text-2xl text-lime-dark">{totalVerifiedParticipants}</p>
             </div>
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Checked In</p>
@@ -107,6 +111,24 @@ export default async function VerifyIndexPage() {
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Total Collected</p>
               <p className="font-display text-2xl text-orange">{formatIDR(totalCollected)}</p>
+            </div>
+          </div>
+
+          <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-navy/50">
+            Participants by Payment Status
+          </p>
+          <div className="mt-2 grid grid-cols-3 gap-4">
+            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+              <p className="text-xs text-navy/50">Need Verify</p>
+              <p className="font-display text-2xl text-navy/60">{totalPendingParticipants}</p>
+            </div>
+            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+              <p className="text-xs text-navy/50">Unverified</p>
+              <p className="font-display text-2xl text-orange">{totalUnverifiedParticipants}</p>
+            </div>
+            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+              <p className="text-xs text-navy/50">Verified</p>
+              <p className="font-display text-2xl text-lime-dark">{totalVerifiedParticipants}</p>
             </div>
           </div>
 
