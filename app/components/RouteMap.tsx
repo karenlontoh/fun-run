@@ -62,9 +62,9 @@ export function RouteMap({
         if (!points[idx]) continue;
         const dropIcon = L.divIcon({
           className: "",
-          html: `<div style="font-size:16px;line-height:1;">💧</div>`,
-          iconSize: [18, 18],
-          iconAnchor: [9, 16],
+          html: `<div style="font-size:28px;line-height:1;">💧</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 28],
         });
         L.marker(latLngs[idx], { icon: dropIcon }).bindPopup("Water Station").addTo(map);
       }

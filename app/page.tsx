@@ -15,7 +15,7 @@ import route5k from "@/lib/routes-5k.json";
 import route2_5k from "@/lib/routes-2.5k.json";
 
 const ROUTES = [
-  { category: "5K", points: route5k as [number, number][], color: "#c3ea41", waterStationIndexes: [82, 122] },
+  { category: "5K", points: route5k as [number, number][], color: "#c3ea41", waterStationIndexes: [82, 150] },
   { category: "2.5K", points: route2_5k as [number, number][], color: "#fe572a", waterStationIndexes: [40] },
 ];
 
