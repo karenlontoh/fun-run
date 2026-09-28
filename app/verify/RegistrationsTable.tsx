@@ -104,8 +104,10 @@ export function RegistrationsTable({ rows: initialRows }: { rows: Row[] }) {
   const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return rows;
-    return rows.filter(({ participants }) =>
-      participants.some((p) => p.full_name.toLowerCase().includes(query))
+    return rows.filter(
+      ({ registration, participants }) =>
+        registration.id.toLowerCase().includes(query) ||
+        participants.some((p) => p.full_name.toLowerCase().includes(query))
     );
   }, [rows, search]);
 
@@ -138,7 +140,7 @@ export function RegistrationsTable({ rows: initialRows }: { rows: Row[] }) {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by participant name..."
+          placeholder="Search by participant name or registration ID..."
           className="w-full max-w-sm rounded-xl border border-navy/10 bg-white px-4 py-2.5 text-sm text-navy placeholder:text-navy/40 focus:border-orange focus:outline-none"
         />
         <select
