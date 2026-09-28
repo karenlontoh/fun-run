@@ -9,6 +9,7 @@ import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
 import { CountdownTimer } from "@/app/components/CountdownTimer";
 import { RouteMap } from "@/app/components/RouteMap";
+import { SizeChartTable } from "@/app/components/SizeChartTable";
 import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 import route5k from "@/lib/routes-5k.json";
@@ -259,6 +260,11 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          <Reveal delay={240}>
+            <div className="mx-auto mt-8 max-w-xl">
+              <SizeChartTable />
+            </div>
+          </Reveal>
         </section>
 
         {/* Route */}
