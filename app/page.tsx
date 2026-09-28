@@ -275,6 +275,14 @@ export default function Home() {
                       color={route.color}
                       waterStationIndexes={route.waterStationIndexes}
                     />
+                    <div className="pointer-events-none absolute bottom-3 left-3 z-[1000] space-y-1 rounded-lg bg-navy/85 px-3 py-2 text-xs font-semibold text-cream backdrop-blur-sm">
+                      <p className="flex items-center gap-1.5">
+                        <span>🏁</span> Start / Finish
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <span>💧</span> Water Station
+                      </p>
+                    </div>
                   </div>
                 </Reveal>
               ))}
