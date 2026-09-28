@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { Reveal } from "@/app/components/Reveal";
@@ -7,7 +8,7 @@ import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
 import { CountdownTimer } from "@/app/components/CountdownTimer";
-import { EVENT, CATEGORY_INFO, BENEFITS, TICKER_TEXT } from "@/lib/event-config";
+import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, ROUTES, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 
 const HOW_IT_WORKS = [
@@ -190,10 +191,95 @@ export default function Home() {
 
         <MarqueeBanner text={TICKER_TEXT} />
 
+        {/* Official Jersey */}
+        <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
+          <Reveal>
+            <Eyebrow index="02" label="OFFICIAL JERSEY" className="text-orange" />
+            <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
+              This Year&apos;s <span className="text-orange">Jersey</span>
+            </h2>
+            <p className="mt-3 max-w-xl text-navy/70">
+              Every runner gets to keep their jersey — the color tells your category apart on
+              race day.
+            </p>
+          </Reveal>
+          <div className="mt-10 grid gap-8 sm:grid-cols-2">
+            {JERSEYS.map((jersey, i) => (
+              <Reveal key={jersey.category} delay={i * 120}>
+                <TiltCard className="rounded-2xl border border-navy/10 bg-white p-6 shadow-sm">
+                  <p
+                    className={`font-display text-3xl ${
+                      jersey.accent === "lime" ? "text-lime-dark" : "text-orange"
+                    }`}
+                  >
+                    {jersey.category}
+                  </p>
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-navy/5">
+                      <Image
+                        src={jersey.front}
+                        alt={`${jersey.category} jersey — front`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 45vw, 260px"
+                      />
+                    </div>
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-navy/5">
+                      <Image
+                        src={jersey.back}
+                        alt={`${jersey.category} jersey — back`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 45vw, 260px"
+                      />
+                    </div>
+                  </div>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* Route */}
+        <section className="bg-navy py-16 text-cream sm:py-24">
+          <div className="mx-auto max-w-4xl px-5">
+            <Reveal>
+              <Eyebrow index="03" label="THE ROUTE" className="text-lime" />
+              <h2 className="font-display mt-4 text-4xl sm:text-5xl">Where You&apos;ll Run</h2>
+              <p className="mt-3 max-w-xl text-cream/70">
+                Both routes start and finish at {EVENT.church}, looping through the
+                neighborhood streets around the church grounds.
+              </p>
+            </Reveal>
+            <div className="mt-10 grid gap-8 sm:grid-cols-2">
+              {ROUTES.map((route, i) => (
+                <Reveal key={route.category} delay={i * 120}>
+                  <p
+                    className={`font-display text-2xl ${
+                      route.category === "5K" ? "text-lime" : "text-orange"
+                    }`}
+                  >
+                    {route.category}
+                  </p>
+                  <div className="relative mt-4 aspect-square overflow-hidden rounded-2xl">
+                    <Image
+                      src={route.map}
+                      alt={`${route.category} route map`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 90vw, 460px"
+                    />
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* How It Works */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="02" label="HOW IT WORKS" className="text-orange" />
+            <Eyebrow index="04" label="HOW IT WORKS" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               Four Steps To Race Day
             </h2>
@@ -216,7 +302,7 @@ export default function Home() {
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="03" label="WHAT YOU'LL GET" className="text-orange" />
+            <Eyebrow index="05" label="WHAT YOU'LL GET" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               What You&apos;ll <span className="text-orange">Get</span>
             </h2>
@@ -247,7 +333,7 @@ export default function Home() {
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="04" label="RACE DAY" className="text-lime" />
+              <Eyebrow index="06" label="RACE DAY" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">What To Expect</h2>
             </Reveal>
             <div className="mt-12 space-y-8 border-l-2 border-cream/20 pl-8">
@@ -265,7 +351,7 @@ export default function Home() {
         {/* FAQ */}
         <section id="faq" className="mx-auto max-w-4xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="05" label="FAQ" className="text-orange" />
+            <Eyebrow index="07" label="FAQ" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               Frequently Asked Questions
             </h2>

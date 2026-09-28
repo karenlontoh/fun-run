@@ -70,3 +70,23 @@ export const BENEFITS = [
 
 // Repeated in the scrolling marquee banner on the landing page.
 export const TICKER_TEXT = "PAULUS FUN RUN · 2.5K · 5K · GPIB PAULUS JAKARTA · 17 OCTOBER 2026";
+
+export const JERSEYS = [
+  {
+    category: "5K",
+    accent: "lime",
+    front: "/jerseys/5k-front.webp",
+    back: "/jerseys/5k-back.webp",
+  },
+  {
+    category: "2.5K",
+    accent: "orange",
+    front: "/jerseys/2.5k-front.webp",
+    back: "/jerseys/2.5k-back.webp",
+  },
+] as const;
+
+export const ROUTES = [
+  { category: "5K", map: "/routes/5k.png" },
+  { category: "2.5K", map: "/routes/2.5k.png" },
+] as const;
