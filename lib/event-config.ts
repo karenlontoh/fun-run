@@ -86,7 +86,3 @@ export const JERSEYS = [
   },
 ] as const;
 
-export const ROUTES = [
-  { category: "5K", map: "/routes/5k.png" },
-  { category: "2.5K", map: "/routes/2.5k.png" },
-] as const;

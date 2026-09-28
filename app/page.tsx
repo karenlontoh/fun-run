@@ -8,8 +8,16 @@ import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
 import { CountdownTimer } from "@/app/components/CountdownTimer";
-import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, ROUTES, TICKER_TEXT } from "@/lib/event-config";
+import { RouteMap } from "@/app/components/RouteMap";
+import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, TICKER_TEXT } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
+import route5k from "@/lib/routes-5k.json";
+import route2_5k from "@/lib/routes-2.5k.json";
+
+const ROUTES = [
+  { category: "5K", points: route5k as [number, number][], color: "#c3ea41", waterStationIndexes: [82, 122] },
+  { category: "2.5K", points: route2_5k as [number, number][], color: "#fe572a", waterStationIndexes: [40] },
+];
 
 const HOW_IT_WORKS = [
   {
@@ -261,13 +269,11 @@ export default function Home() {
                   >
                     {route.category}
                   </p>
-                  <div className="relative mt-4 aspect-square overflow-hidden rounded-2xl">
-                    <Image
-                      src={route.map}
-                      alt={`${route.category} route map`}
-                      fill
-                      className="animate-map-pan object-cover"
-                      sizes="(max-width: 640px) 90vw, 460px"
+                  <div className="relative mt-4 aspect-square overflow-hidden rounded-2xl border border-cream/15">
+                    <RouteMap
+                      points={route.points}
+                      color={route.color}
+                      waterStationIndexes={route.waterStationIndexes}
                     />
                   </div>
                 </Reveal>
