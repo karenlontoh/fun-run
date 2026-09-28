@@ -266,7 +266,7 @@ export default function Home() {
                       src={route.map}
                       alt={`${route.category} route map`}
                       fill
-                      className="object-cover"
+                      className="animate-map-pan object-cover"
                       sizes="(max-width: 640px) 90vw, 460px"
                     />
                   </div>
