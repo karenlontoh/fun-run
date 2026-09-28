@@ -18,6 +18,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Mutes the default OpenStreetMap tile style (busy colors, dense POI icons)
+   on the route maps, without losing coverage in areas other basemaps lack. */
+.route-map-tiles {
+  filter: grayscale(0.55) saturate(0.7) brightness(1.08) contrast(0.95);
+}
+
 body {
   font-family: var(--font-body), Arial, Helvetica, sans-serif;
 }

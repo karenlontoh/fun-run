@@ -8,12 +8,12 @@ type LatLng = [number, number];
 export function RouteMap({
   points,
   color,
-  waterStationIndexes = [],
+  waterStations = [],
   loopSeconds = 35,
 }: {
   points: LatLng[];
   color: string;
-  waterStationIndexes?: number[];
+  waterStations?: LatLng[];
   loopSeconds?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,6 +42,7 @@ export function RouteMap({
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         subdomains: "abc",
         maxZoom: 19,
+        className: "route-map-tiles",
       }).addTo(map);
 
       const latLngs = points.map(([lat, lon]) => L.latLng(lat, lon));
@@ -58,15 +59,14 @@ export function RouteMap({
       });
       L.marker(latLngs[0], { icon: flagIcon }).bindPopup("Start / Finish").addTo(map);
 
-      for (const idx of waterStationIndexes) {
-        if (!points[idx]) continue;
+      for (const [lat, lon] of waterStations) {
         const dropIcon = L.divIcon({
           className: "",
           html: `<div style="font-size:28px;line-height:1;">💧</div>`,
           iconSize: [32, 32],
           iconAnchor: [16, 28],
         });
-        L.marker(latLngs[idx], { icon: dropIcon }).bindPopup("Water Station").addTo(map);
+        L.marker(L.latLng(lat, lon), { icon: dropIcon }).bindPopup("Water Station").addTo(map);
       }
 
       const runnerIcon = L.divIcon({
@@ -122,7 +122,7 @@ export function RouteMap({
       cancelAnimationFrame(rafId);
       map?.remove();
     };
-  }, [points, color, waterStationIndexes, loopSeconds]);
+  }, [points, color, waterStations, loopSeconds]);
 
   return <div ref={containerRef} className="h-full w-full" />;
 }

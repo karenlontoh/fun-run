@@ -15,8 +15,21 @@ import route5k from "@/lib/routes-5k.json";
 import route2_5k from "@/lib/routes-2.5k.json";
 
 const ROUTES = [
-  { category: "5K", points: route5k as [number, number][], color: "#c3ea41", waterStationIndexes: [82, 131] },
-  { category: "2.5K", points: route2_5k as [number, number][], color: "#fe572a", waterStationIndexes: [40] },
+  {
+    category: "5K",
+    points: route5k as [number, number][],
+    color: "#c3ea41",
+    waterStations: [
+      [-6.187043, 106.835467],
+      [-6.19447491, 106.829361945],
+    ] as [number, number][],
+  },
+  {
+    category: "2.5K",
+    points: route2_5k as [number, number][],
+    color: "#fe572a",
+    waterStations: [[-6.190628, 106.83306]] as [number, number][],
+  },
 ];
 
 const HOW_IT_WORKS = [
@@ -273,7 +286,7 @@ export default function Home() {
                     <RouteMap
                       points={route.points}
                       color={route.color}
-                      waterStationIndexes={route.waterStationIndexes}
+                      waterStations={route.waterStations}
                     />
                     <div className="pointer-events-none absolute bottom-3 left-3 z-[1000] space-y-1 rounded-lg bg-navy/85 px-3 py-2 text-xs font-semibold text-cream backdrop-blur-sm">
                       <p className="flex items-center gap-1.5">
