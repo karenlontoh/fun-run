@@ -40,8 +40,16 @@ export default async function VerifyIndexPage() {
   const totalCollected = (registrations ?? []).reduce((sum, r) => sum + r.total_amount, 0);
   const totalCheckedIn = (participants ?? []).filter((p) => p.checked_in).length;
 
+  const verifiedRegistrationIds = new Set(
+    (registrations ?? []).filter((r) => r.payment_status === "verified").map((r) => r.id)
+  );
+  const verifiedParticipants = (participants ?? []).filter((p) =>
+    verifiedRegistrationIds.has(p.registration_id)
+  );
+  const totalVerifiedParticipants = verifiedParticipants.length;
+
   const countBy = (category: string, gender: string) =>
-    (participants ?? []).filter((p) => p.category === category && p.gender === gender).length;
+    verifiedParticipants.filter((p) => p.category === category && p.gender === gender).length;
 
   const categoryGenderStats = [
     { label: "2.5K — Male", count: countBy("2.5K", "L") },
@@ -77,7 +85,7 @@ export default async function VerifyIndexPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Registrations</p>
               <p className="font-display text-2xl text-navy">{rows.length}</p>
@@ -85,6 +93,10 @@ export default async function VerifyIndexPage() {
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Participants</p>
               <p className="font-display text-2xl text-navy">{totalParticipants}</p>
+            </div>
+            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+              <p className="text-xs text-navy/50">Participants Verified</p>
+              <p className="font-display text-2xl text-lime-dark">{totalVerifiedParticipants}</p>
             </div>
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Checked In</p>
@@ -98,7 +110,10 @@ export default async function VerifyIndexPage() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-navy/50">
+            Verified Participants by Category
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {categoryGenderStats.map(({ label, count }) => (
               <div key={label} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
                 <p className="text-xs text-navy/50">{label}</p>
