@@ -70,6 +70,9 @@ export type Participant = {
   checked_in: boolean;
   checked_in_at: string | null;
   age_group: AgeGroup;
+  // Race-day attendance — separate from checked_in (race pack collection).
+  attended: boolean;
+  attended_at: string | null;
 };
 
 export type Registration = {

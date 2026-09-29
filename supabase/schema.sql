@@ -63,8 +63,15 @@ create table if not exists participants (
   jersey_size text not null,
   checked_in boolean not null default false,
   checked_in_at timestamptz,
-  age_group text not null default 'dewasa' check (age_group in ('anak', 'dewasa'))
+  age_group text not null default 'dewasa' check (age_group in ('anak', 'dewasa')),
+  -- Race-day attendance, separate from `checked_in` (race pack collection, which
+  -- happens up to a week before race day and isn't the same as who actually shows up).
+  attended boolean not null default false,
+  attended_at timestamptz
 );
+
+alter table participants add column if not exists attended boolean not null default false;
+alter table participants add column if not exists attended_at timestamptz;
 
 -- If participants already existed from an earlier version of this schema
 -- (with a shared default sequence), drop that default — bib_number is now

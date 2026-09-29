@@ -56,6 +56,9 @@ export default async function VerifyIndexPage() {
   const totalVerifiedParticipants = verifiedParticipants.length;
   const totalUnverifiedParticipants = unverifiedParticipants.length;
 
+  // Race-day attendance is only meaningful against verified (paid) participants.
+  const totalAttended = verifiedParticipants.filter((p) => p.attended).length;
+
   const countBy = (category: string, gender: string) =>
     verifiedParticipants.filter((p) => p.category === category && p.gender === gender).length;
 
@@ -64,6 +67,17 @@ export default async function VerifyIndexPage() {
     { label: "2.5K — Female", count: countBy("2.5K", "P") },
     { label: "5K — Male", count: countBy("5K", "L") },
     { label: "5K — Female", count: countBy("5K", "P") },
+  ];
+
+  const attendedParticipants = verifiedParticipants.filter((p) => p.attended);
+  const countAttendedBy = (category: string, gender: string) =>
+    attendedParticipants.filter((p) => p.category === category && p.gender === gender).length;
+
+  const attendedCategoryGenderStats = [
+    { label: "2.5K — Male", count: countAttendedBy("2.5K", "L") },
+    { label: "2.5K — Female", count: countAttendedBy("2.5K", "P") },
+    { label: "5K — Male", count: countAttendedBy("5K", "L") },
+    { label: "5K — Female", count: countAttendedBy("5K", "P") },
   ];
 
   return (
@@ -77,6 +91,12 @@ export default async function VerifyIndexPage() {
               <h1 className="font-display mt-2 text-3xl text-navy sm:text-4xl">All Registrations</h1>
             </div>
             <div className="flex flex-wrap gap-3">
+              <Link
+                href="/checkin"
+                className="rounded-full bg-lime px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-lime-dark"
+              >
+                Race Day Check-In Page
+              </Link>
               <Link
                 href="/verify/tambah-peserta"
                 className="rounded-full bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
@@ -93,7 +113,7 @@ export default async function VerifyIndexPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Registrations</p>
               <p className="font-display text-2xl text-navy">{rows.length}</p>
@@ -103,9 +123,15 @@ export default async function VerifyIndexPage() {
               <p className="font-display text-2xl text-navy">{totalParticipants}</p>
             </div>
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
-              <p className="text-xs text-navy/50">Checked In</p>
+              <p className="text-xs text-navy/50">Race Pack Collected</p>
               <p className="font-display text-2xl text-navy">
                 {totalCheckedIn}/{totalParticipants}
+              </p>
+            </div>
+            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+              <p className="text-xs text-navy/50">Attended (Race Day)</p>
+              <p className="font-display text-2xl text-lime-dark">
+                {totalAttended}/{totalVerifiedParticipants}
               </p>
             </div>
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
@@ -140,6 +166,18 @@ export default async function VerifyIndexPage() {
               <div key={label} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
                 <p className="text-xs text-navy/50">{label}</p>
                 <p className="font-display text-2xl text-navy">{count}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-navy/50">
+            Checked In (Race Day) by Category
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {attendedCategoryGenderStats.map(({ label, count }) => (
+              <div key={label} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+                <p className="text-xs text-navy/50">{label}</p>
+                <p className="font-display text-2xl text-lime-dark">{count}</p>
               </div>
             ))}
           </div>

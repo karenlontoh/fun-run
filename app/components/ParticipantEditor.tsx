@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CollectRacePackButton } from "@/app/components/CollectRacePackButton";
+import { AttendanceStatus } from "@/app/components/AttendanceStatus";
 import {
   CATEGORIES,
   jerseySizesFor,
@@ -194,11 +195,16 @@ export function ParticipantEditor({ participant }: { participant: Participant })
           </button>
         </div>
       </div>
-      <div className="mt-3 border-t border-navy/10 pt-3">
+      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-navy/10 pt-3">
         <CollectRacePackButton
           participantId={current.id}
           initialCheckedIn={current.checked_in}
           initialCheckedInAt={current.checked_in_at}
+        />
+        <AttendanceStatus
+          participantId={current.id}
+          initialAttended={current.attended}
+          initialAttendedAt={current.attended_at}
         />
       </div>
     </div>
