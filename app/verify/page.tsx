@@ -38,7 +38,6 @@ export default async function VerifyIndexPage() {
 
   const totalParticipants = participants?.length ?? 0;
   const totalCollected = (registrations ?? []).reduce((sum, r) => sum + r.total_amount, 0);
-  const totalCheckedIn = (participants ?? []).filter((p) => p.checked_in).length;
 
   const registrationIdsByStatus = (status: string) =>
     new Set((registrations ?? []).filter((r) => r.payment_status === status).map((r) => r.id));
@@ -56,7 +55,9 @@ export default async function VerifyIndexPage() {
   const totalVerifiedParticipants = verifiedParticipants.length;
   const totalUnverifiedParticipants = unverifiedParticipants.length;
 
-  // Race-day attendance is only meaningful against verified (paid) participants.
+  // Race pack collection and race-day attendance are only meaningful against
+  // verified (paid) participants.
+  const totalCheckedIn = verifiedParticipants.filter((p) => p.checked_in).length;
   const totalAttended = verifiedParticipants.filter((p) => p.attended).length;
 
   const countBy = (category: string, gender: string) =>
@@ -125,7 +126,7 @@ export default async function VerifyIndexPage() {
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
               <p className="text-xs text-navy/50">Race Pack Collected</p>
               <p className="font-display text-2xl text-navy">
-                {totalCheckedIn}/{totalParticipants}
+                {totalCheckedIn}/{totalVerifiedParticipants}
               </p>
             </div>
             <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
