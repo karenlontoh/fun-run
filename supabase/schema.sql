@@ -158,7 +158,7 @@ $$;
 alter table registrations enable row level security;
 alter table participants enable row level security;
 
--- Charity Paulus Fun Walk — a separate, simpler registration track alongside
+-- Paulus Interfaith Fun Walk — a separate, simpler registration track alongside
 -- the main run. No BIB numbers, jersey sizes, or categories: it's a flat
 -- per-head charity fee with no race pack/medal, so it gets its own tables
 -- entirely rather than reusing registrations/participants with a pile of

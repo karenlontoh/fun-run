@@ -30,12 +30,12 @@ export const PAYMENT = {
   uniqueCode: "007",
 } as const;
 
-// Charity Paulus Fun Walk — a separate charity session alongside the main
+// Paulus Interfaith Fun Walk — a separate charity session alongside the main
 // run, same event day, no race pack/BIB/medal. Uses the same bank account
 // but its own unique code so the committee can tell the two apart on the
 // bank statement.
 export const CHARITY_WALK = {
-  name: "Charity Paulus Fun Walk",
+  name: "Paulus Interfaith Fun Walk",
   underOrganization: "Kementerian Agama RI",
   pricePerPerson: 250000,
   uniqueCode: "008",

@@ -26,7 +26,7 @@ export function NavBar() {
             FAQ
           </Link>
           <Link href="/fun-walk" className="hidden hover:text-lime sm:inline">
-            Charity Walk
+            Interfaith Fun Walk
           </Link>
           <Link
             href="/daftar"

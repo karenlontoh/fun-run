@@ -102,7 +102,7 @@ export default async function VerifyIndexPage() {
                 href="/verify/fun-walk"
                 className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
               >
-                Charity Fun Walk
+                Interfaith Fun Walk
               </Link>
               <Link
                 href="/verify/tambah-peserta"
