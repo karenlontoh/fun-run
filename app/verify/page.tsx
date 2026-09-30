@@ -99,12 +99,6 @@ export default async function VerifyIndexPage() {
                 Race Day Check-In Page
               </Link>
               <Link
-                href="/verify/fun-walk"
-                className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
-              >
-                Interfaith Fun Walk
-              </Link>
-              <Link
                 href="/verify/tambah-peserta"
                 className="rounded-full bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
               >

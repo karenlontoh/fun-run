@@ -28,9 +28,6 @@ export function NavBar() {
           <Link href="/#faq" className="hidden hover:text-lime sm:inline">
             FAQ
           </Link>
-          <Link href="/fun-walk" className="hidden hover:text-lime sm:inline">
-            Interfaith Fun Walk
-          </Link>
           {closed ? (
             <span
               className="cursor-not-allowed rounded-full bg-navy/10 px-4 py-2 font-display tracking-wide text-navy/40 sm:px-5"
