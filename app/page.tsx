@@ -44,7 +44,8 @@ const HOW_IT_WORKS = [
   },
   {
     title: "Race Pack Collection",
-    description: "Show your QR code at the venue to collect your jersey and race pack.",
+    description:
+      "13–14 October, 6:00 PM – 10:00 PM at GPIB Paulus Jakarta. Show your QR code to collect your jersey and race pack.",
   },
   {
     title: "Race Day",
