@@ -10,7 +10,7 @@ import { Eyebrow } from "@/app/components/Eyebrow";
 import { CountdownTimer } from "@/app/components/CountdownTimer";
 import { RouteMap } from "@/app/components/RouteMap";
 import { SizeChartTable } from "@/app/components/SizeChartTable";
-import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, TICKER_TEXT } from "@/lib/event-config";
+import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, TICKER_TEXT, isRegistrationClosed } from "@/lib/event-config";
 import { formatIDR } from "@/lib/pricing";
 import route5k from "@/lib/routes-5k.json";
 import route2_5k from "@/lib/routes-2.5k.json";
@@ -98,6 +98,8 @@ const FAQ_ITEMS = [
 ];
 
 export default function Home() {
+  const closed = isRegistrationClosed();
+
   return (
     <>
       <NavBar />
@@ -167,12 +169,18 @@ export default function Home() {
             </Reveal>
             <Reveal delay={400}>
               <div className="mt-10 flex flex-wrap gap-4">
-                <Link
-                  href="/daftar"
-                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
-                >
-                  REGISTER NOW
-                </Link>
+                {closed ? (
+                  <span className="font-display cursor-not-allowed rounded-full bg-cream/10 px-8 py-4 text-lg tracking-wide text-cream/40">
+                    REGISTRATION CLOSED
+                  </span>
+                ) : (
+                  <Link
+                    href="/daftar"
+                    className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
+                  >
+                    REGISTER NOW
+                  </Link>
+                )}
                 <a
                   href="#kategori"
                   className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-cream hover:text-navy active:translate-y-0 active:scale-100"
@@ -407,14 +415,22 @@ export default function Home() {
         {/* CTA */}
         <section className="bg-orange py-16 text-center text-cream sm:py-20">
           <Reveal>
-            <h2 className="font-display text-4xl sm:text-5xl">READY TO RUN?</h2>
-            <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
-            <Link
-              href="/daftar"
-              className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
-            >
-              REGISTER NOW
-            </Link>
+            <h2 className="font-display text-4xl sm:text-5xl">
+              {closed ? "SEE YOU ON RACE DAY!" : "READY TO RUN?"}
+            </h2>
+            {closed ? (
+              <p className="mt-3 text-cream/90">Registration is now closed. Thanks to everyone who signed up!</p>
+            ) : (
+              <>
+                <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
+                <Link
+                  href="/daftar"
+                  className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
+                >
+                  REGISTER NOW
+                </Link>
+              </>
+            )}
           </Reveal>
         </section>
       </main>
