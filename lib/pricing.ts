@@ -1,4 +1,4 @@
-import { CATEGORY_INFO, PAYMENT } from "./event-config";
+import { CATEGORY_INFO, CHARITY_WALK, PAYMENT } from "./event-config";
 
 const PRICE_BY_CATEGORY: Record<string, number> = Object.fromEntries(
   CATEGORY_INFO.map((c) => [c.code, c.price])
@@ -21,6 +21,10 @@ export function addUniqueCode(amount: number): number {
 
 export function calculateTransferAmount(categories: string[]): number {
   return addUniqueCode(calculateTotal(categories));
+}
+
+export function calculateCharityTransferAmount(participantCount: number): number {
+  return participantCount * CHARITY_WALK.pricePerPerson + Number(CHARITY_WALK.uniqueCode);
 }
 
 export function formatIDR(amount: number): string {

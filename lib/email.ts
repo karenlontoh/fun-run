@@ -1,9 +1,9 @@
 import "server-only";
 import { Resend } from "resend";
-import { EVENT } from "./event-config";
+import { EVENT, CHARITY_WALK } from "./event-config";
 import { formatIDR } from "./pricing";
-import { verifyUrl } from "./site";
-import type { Participant, Registration } from "./types";
+import { getSiteUrl, verifyUrl } from "./site";
+import type { CharityParticipant, CharityRegistration, Participant, Registration } from "./types";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -118,6 +118,89 @@ export async function sendAdminNotificationEmail(params: {
     to: EVENT.notificationEmail,
     subject: `New Registration — ${registration.contact_name} (${participants.length} participant${participants.length === 1 ? "" : "s"})`,
     html: buildAdminNotificationEmailHtml(registration, participants),
+  });
+
+  return { error: error?.message ?? null };
+}
+
+export async function sendCharityRegistrationEmail(params: {
+  to: string;
+  contactName: string;
+  registrationId: string;
+}): Promise<{ error: string | null }> {
+  if (!resend) {
+    return { error: "RESEND_API_KEY is not configured" };
+  }
+
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM ?? "Paulus Fun Run <onboarding@resend.dev>",
+    to: params.to,
+    subject: `${CHARITY_WALK.name} — Registration Received`,
+    text: `Hi ${params.contactName},\n\nThanks for registering for ${CHARITY_WALK.name}, joining ${CHARITY_WALK.guest.name} (${CHARITY_WALK.guest.title})!\n\nRegistration ID: ${params.registrationId}\n\nThere's no BIB or race pack for this session — just show up and walk for a good cause. We'll confirm your payment shortly.\n\nSee you there!\n${EVENT.church}`,
+  });
+
+  return { error: error?.message ?? null };
+}
+
+function buildCharityAdminNotificationEmailHtml(
+  registration: CharityRegistration,
+  participants: CharityParticipant[]
+): string {
+  const rows = participants
+    .map(
+      (p) => `
+        <tr>
+          <td style="padding:6px 10px;border-bottom:1px solid #e5e5e5;">${escapeHtml(p.full_name)}</td>
+        </tr>`
+    )
+    .join("");
+
+  return `
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;color:#111;">
+      <h2 style="color:#0a1f5c;margin-bottom:4px;">New ${CHARITY_WALK.name} Registration</h2>
+      <p style="color:#555;margin-top:0;">A new charity walk registration just came in.</p>
+
+      <table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:14px;">
+        <tr><td style="padding:4px 10px 4px 0;font-weight:bold;width:150px;">Contact Name</td><td style="padding:4px 0;">${escapeHtml(registration.contact_name)}</td></tr>
+        <tr><td style="padding:4px 10px 4px 0;font-weight:bold;">Email</td><td style="padding:4px 0;">${escapeHtml(registration.contact_email)}</td></tr>
+        <tr><td style="padding:4px 10px 4px 0;font-weight:bold;">Phone</td><td style="padding:4px 0;">${escapeHtml(registration.contact_phone)}</td></tr>
+        <tr><td style="padding:4px 10px 4px 0;font-weight:bold;">Total Amount</td><td style="padding:4px 0;">${formatIDR(registration.total_amount)}</td></tr>
+        <tr><td style="padding:4px 10px 4px 0;font-weight:bold;">Payment Status</td><td style="padding:4px 0;">${PAYMENT_STATUS_LABEL[registration.payment_status]}</td></tr>
+      </table>
+
+      <h3 style="color:#0a1f5c;margin-top:24px;margin-bottom:8px;">Participants (${participants.length})</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#f2f2f2;text-align:left;">
+            <th style="padding:6px 10px;">Name</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <p style="margin-top:28px;">
+        <a href="${getSiteUrl()}/verify/fun-walk" style="background:#f4602a;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:bold;display:inline-block;">
+          View in Admin Dashboard
+        </a>
+      </p>
+    </div>
+  `;
+}
+
+export async function sendCharityAdminNotificationEmail(params: {
+  registration: CharityRegistration;
+  participants: CharityParticipant[];
+}): Promise<{ error: string | null }> {
+  if (!resend) {
+    return { error: "RESEND_API_KEY is not configured" };
+  }
+
+  const { registration, participants } = params;
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM ?? "Paulus Fun Run <onboarding@resend.dev>",
+    to: EVENT.notificationEmail,
+    subject: `New ${CHARITY_WALK.name} Registration — ${registration.contact_name} (${participants.length} participant${participants.length === 1 ? "" : "s"})`,
+    html: buildCharityAdminNotificationEmailHtml(registration, participants),
   });
 
   return { error: error?.message ?? null };

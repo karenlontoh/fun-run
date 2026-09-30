@@ -92,3 +92,23 @@ export type Registration = {
 export type RegistrationWithParticipants = Registration & {
   participants: Participant[];
 };
+
+// Charity Paulus Fun Walk — a separate, simpler registration track: no BIB,
+// jersey size, category, or gender, since there's no race pack or medal.
+export type CharityRegistration = {
+  id: string;
+  created_at: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
+  total_amount: number;
+  payment_proof_path: string | null;
+  payment_status: PaymentStatus;
+  payment_method: PaymentMethod | null;
+};
+
+export type CharityParticipant = {
+  id: string;
+  registration_id: string;
+  full_name: string;
+};

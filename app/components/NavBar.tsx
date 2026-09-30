@@ -25,6 +25,9 @@ export function NavBar() {
           <Link href="/#faq" className="hidden hover:text-lime sm:inline">
             FAQ
           </Link>
+          <Link href="/fun-walk" className="hidden hover:text-lime sm:inline">
+            Charity Walk
+          </Link>
           <Link
             href="/daftar"
             className="rounded-full bg-orange px-4 py-2 font-display tracking-wide text-cream transition hover:bg-orange-dark sm:px-5"

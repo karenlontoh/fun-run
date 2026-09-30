@@ -157,3 +157,68 @@ $$;
 -- enumerable by anyone holding the public anon key.
 alter table registrations enable row level security;
 alter table participants enable row level security;
+
+-- Charity Paulus Fun Walk — a separate, simpler registration track alongside
+-- the main run. No BIB numbers, jersey sizes, or categories: it's a flat
+-- per-head charity fee with no race pack/medal, so it gets its own tables
+-- entirely rather than reusing registrations/participants with a pile of
+-- irrelevant nullable columns.
+create table if not exists charity_registrations (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  contact_name text not null,
+  contact_email text not null,
+  contact_phone text not null,
+  total_amount integer not null default 0,
+  payment_proof_path text,
+  payment_status text not null default 'pending' check (payment_status in ('pending', 'verified', 'unverified')),
+  payment_method text check (payment_method in ('cash', 'transfer'))
+);
+
+create table if not exists charity_participants (
+  id uuid primary key default gen_random_uuid(),
+  registration_id uuid not null references charity_registrations(id) on delete cascade,
+  full_name text not null
+);
+
+create index if not exists charity_participants_registration_id_idx on charity_participants(registration_id);
+
+-- Atomically creates one charity registration plus all of its participants,
+-- mirroring create_registration's transactional guarantee.
+create or replace function create_charity_registration(
+  p_contact_name text,
+  p_contact_email text,
+  p_contact_phone text,
+  p_total_amount integer,
+  p_full_names jsonb
+)
+returns table (
+  registration_id uuid,
+  participant_id uuid,
+  full_name text
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_registration_id uuid;
+begin
+  if jsonb_array_length(p_full_names) = 0 then
+    raise exception 'At least one participant is required';
+  end if;
+
+  insert into charity_registrations (contact_name, contact_email, contact_phone, total_amount)
+  values (p_contact_name, p_contact_email, p_contact_phone, p_total_amount)
+  returning id into v_registration_id;
+
+  return query
+  insert into charity_participants (registration_id, full_name)
+  select v_registration_id, value
+  from jsonb_array_elements_text(p_full_names) as value
+  returning charity_participants.registration_id, charity_participants.id, charity_participants.full_name;
+end;
+$$;
+
+alter table charity_registrations enable row level security;
+alter table charity_participants enable row level security;
