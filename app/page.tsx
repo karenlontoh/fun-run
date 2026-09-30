@@ -7,7 +7,6 @@ import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { TiltCard } from "@/app/components/TiltCard";
 import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
-import { CountdownTimer } from "@/app/components/CountdownTimer";
 import { RouteMap } from "@/app/components/RouteMap";
 import { SizeChartTable } from "@/app/components/SizeChartTable";
 import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, TICKER_TEXT, isRegistrationClosed } from "@/lib/event-config";
@@ -156,17 +155,12 @@ export default function Home() {
                   <dd className="font-semibold">{EVENT.meetingPoint}</dd>
                 </div>
                 <div className="col-span-2">
-                  <dt className="text-cream/60">Registration Period</dt>
+                  <dt className="text-cream/60">Race Pack Collection</dt>
                   <dd className="font-semibold">
-                    {EVENT.registrationOpen} — {EVENT.registrationClose}
+                    13–14 October, 6:00 PM – 10:00 PM at GPIB Paulus Jakarta
                   </dd>
                 </div>
               </dl>
-            </Reveal>
-            <Reveal delay={350}>
-              <div className="mt-8">
-                <CountdownTimer targetDate={EVENT.registrationCloseAt} />
-              </div>
             </Reveal>
             <Reveal delay={400}>
               <div className="mt-10 flex flex-wrap gap-4">
