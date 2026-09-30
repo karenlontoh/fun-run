@@ -4,6 +4,7 @@ import { uploadPaymentProof } from "@/lib/storage";
 import { calculateTransferAmount } from "@/lib/pricing";
 import { generateRegistrationPdf } from "@/lib/pdf";
 import { sendAdminNotificationEmail, sendRegistrationEmail } from "@/lib/email";
+import { isRegistrationClosed } from "@/lib/event-config";
 import {
   AGE_GROUPS,
   CATEGORIES,
@@ -90,6 +91,10 @@ function validateFields(body: {
 }
 
 export async function POST(request: Request) {
+  if (isRegistrationClosed()) {
+    return NextResponse.json({ error: "Registration is closed." }, { status: 403 });
+  }
+
   let formData: FormData;
   try {
     formData = await request.formData();

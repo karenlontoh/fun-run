@@ -19,6 +19,10 @@ export const EVENT = {
   notificationEmail: "paulusfunrun.peg@gmail.com",
 } as const;
 
+export function isRegistrationClosed(): boolean {
+  return Date.now() > new Date(EVENT.registrationCloseAt).getTime();
+}
+
 // Edit bank transfer details here — shown on the registration form as payment instructions.
 // uniqueCode is appended to the last digits of every transfer amount so the
 // committee can tell Fun Run payments apart from other transfers into the
