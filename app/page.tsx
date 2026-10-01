@@ -9,8 +9,7 @@ import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
 import { RouteMap } from "@/app/components/RouteMap";
 import { SizeChartTable } from "@/app/components/SizeChartTable";
-import { EVENT, CATEGORY_INFO, BENEFITS, JERSEYS, TICKER_TEXT, isRegistrationClosed } from "@/lib/event-config";
-import { formatIDR } from "@/lib/pricing";
+import { EVENT, BENEFITS, JERSEYS, TICKER_TEXT, isRegistrationClosed } from "@/lib/event-config";
 import route5k from "@/lib/routes-5k.json";
 import route2_5k from "@/lib/routes-2.5k.json";
 
@@ -57,24 +56,12 @@ const FAQ_ITEMS = [
     a: "Not at all! Paulus Fun Run is fun and non-competitive — there's no clock to beat and no pressure. Walk it, jog it, or run it, and enjoy the morning at whatever pace feels good.",
   },
   {
-    q: "Is registration paid?",
-    a: `Yes. The ${CATEGORY_INFO[0].code} category is ${formatIDR(CATEGORY_INFO[0].price)} and ${CATEGORY_INFO[1].code} is ${formatIDR(CATEGORY_INFO[1].price)}, including a race pack (jersey & BIB number), refreshments, medal, and entertainment.`,
-  },
-  {
-    q: "Can I register more than one person?",
-    a: "Yes. When filling out the form, you can add multiple participants at once (for example, your whole family). Each participant still gets their own BIB number, and you'll receive one QR code for your group registration.",
-  },
-  {
     q: "What's the QR code for?",
     a: "The QR code is proof of your group's registration. When scanned by the committee on race day, all participants in your group will appear instantly for race pack collection.",
   },
   {
     q: "What should I bring on race day?",
     a: "Comfortable shoes and a water bottle are all you really need — your race pack (jersey, BIB, and everything else) is already covered.",
-  },
-  {
-    q: "When does registration close?",
-    a: `Registration is open from ${EVENT.registrationOpen} to ${EVENT.registrationClose}, or earlier if slots run out.`,
   },
 ];
 
@@ -154,65 +141,26 @@ export default function Home() {
                 </div>
               </dl>
             </Reveal>
-            <Reveal delay={400}>
-              <div className="mt-10 flex flex-wrap gap-4">
-                {closed ? (
-                  <span className="font-display cursor-not-allowed rounded-full bg-cream/10 px-8 py-4 text-lg tracking-wide text-cream/40">
-                    REGISTRATION CLOSED
-                  </span>
-                ) : (
+            {!closed && (
+              <Reveal delay={400}>
+                <div className="mt-10 flex flex-wrap gap-4">
                   <Link
                     href="/daftar"
                     className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
                   >
                     REGISTER NOW
                   </Link>
-                )}
-                <a
-                  href="#kategori"
-                  className="font-display rounded-full border-2 border-cream px-8 py-4 text-lg tracking-wide text-cream transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-cream hover:text-navy active:translate-y-0 active:scale-100"
-                >
-                  VIEW CATEGORIES
-                </a>
-              </div>
-            </Reveal>
+                </div>
+              </Reveal>
+            )}
           </div>
         </section>
-
-        {/* Categories */}
-        <section id="kategori" className="bg-navy py-16 text-cream sm:py-24">
-          <div className="mx-auto max-w-6xl px-5">
-            <Reveal>
-              <Eyebrow index="01" label="CATEGORIES" className="text-lime" />
-              <h2 className="font-display mt-4 text-4xl sm:text-5xl">
-                Choose Your <span className="text-lime">Category</span>
-              </h2>
-            </Reveal>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2">
-              {CATEGORY_INFO.map((cat, i) => (
-                <Reveal key={cat.code} delay={i * 120}>
-                  <TiltCard
-                    className={`rounded-2xl p-8 ${i === 0 ? "bg-lime text-navy" : "bg-orange text-cream"}`}
-                  >
-                    <div className="flex items-baseline justify-between">
-                      <p className="font-display text-5xl">{cat.code}</p>
-                      <p className="font-display text-2xl">{formatIDR(cat.price)}</p>
-                    </div>
-                    <p className="mt-3 opacity-90">{cat.description}</p>
-                  </TiltCard>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <MarqueeBanner text={TICKER_TEXT} />
 
         {/* Race Pack Collection */}
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="02" label="RACE PACK COLLECTION" className="text-lime" />
+              <Eyebrow index="01" label="RACE PACK COLLECTION" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">Collect Your Race Pack</h2>
               <p className="mt-3 max-w-xl text-cream/70">
                 Bring your QR code and come collect your jersey and race pack before race day.
@@ -252,10 +200,12 @@ export default function Home() {
           </div>
         </section>
 
+        <MarqueeBanner text={TICKER_TEXT} />
+
         {/* Official Jersey */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="03" label="OFFICIAL JERSEY" className="text-orange" />
+            <Eyebrow index="02" label="OFFICIAL JERSEY" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               This Year&apos;s <span className="text-orange">Jersey</span>
             </h2>
@@ -310,7 +260,7 @@ export default function Home() {
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="04" label="THE ROUTE" className="text-lime" />
+              <Eyebrow index="03" label="THE ROUTE" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">Where You&apos;ll Run</h2>
               <p className="mt-3 max-w-xl text-cream/70">
                 Both routes start and finish at {EVENT.church}, looping through the
@@ -351,7 +301,7 @@ export default function Home() {
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="05" label="WHAT YOU'LL GET" className="text-orange" />
+            <Eyebrow index="04" label="WHAT YOU'LL GET" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               What You&apos;ll <span className="text-orange">Get</span>
             </h2>
@@ -382,7 +332,7 @@ export default function Home() {
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="06" label="RACE DAY" className="text-lime" />
+              <Eyebrow index="05" label="RACE DAY" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">What To Expect</h2>
             </Reveal>
             <div className="mt-12 space-y-8 border-l-2 border-cream/20 pl-8">
@@ -400,7 +350,7 @@ export default function Home() {
         {/* FAQ */}
         <section id="faq" className="mx-auto max-w-4xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="07" label="FAQ" className="text-orange" />
+            <Eyebrow index="06" label="FAQ" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               Frequently Asked Questions
             </h2>

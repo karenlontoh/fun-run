@@ -22,9 +22,6 @@ export function NavBar() {
           )}
         </Link>
         <nav className="flex items-center gap-4 text-sm font-semibold sm:gap-6 sm:text-base">
-          <Link href="/#kategori" className="hidden hover:text-lime sm:inline">
-            Categories
-          </Link>
           <Link href="/#faq" className="hidden hover:text-lime sm:inline">
             FAQ
           </Link>
