@@ -17,6 +17,7 @@ export function RouteMap({
   loopSeconds?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const restartRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || points.length < 2) return;
@@ -97,7 +98,14 @@ export function RouteMap({
       }
 
       const overviewDelayMs = 1800;
-      const startTime = performance.now() + overviewDelayMs;
+      let startTime = performance.now() + overviewDelayMs;
+
+      restartRef.current = () => {
+        if (!map) return;
+        startTime = performance.now() + overviewDelayMs;
+        runner.setLatLng(latLngs[0]);
+        map.fitBounds(bounds, { padding: [24, 24] });
+      };
 
       function tick(now: number) {
         if (cancelled || !map) return;
@@ -120,9 +128,21 @@ export function RouteMap({
     return () => {
       cancelled = true;
       cancelAnimationFrame(rafId);
+      restartRef.current = null;
       map?.remove();
     };
   }, [points, color, waterStations, loopSeconds]);
 
-  return <div ref={containerRef} className="h-full w-full" />;
+  return (
+    <>
+      <div ref={containerRef} className="h-full w-full" />
+      <button
+        type="button"
+        onClick={() => restartRef.current?.()}
+        className="absolute bottom-3 right-3 z-[1000] rounded-full bg-navy/85 px-3 py-1.5 text-xs font-semibold text-cream backdrop-blur-sm transition hover:bg-navy"
+      >
+        ↻ Restart
+      </button>
+    </>
+  );
 }
