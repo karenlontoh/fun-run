@@ -106,6 +106,16 @@ export default function Home() {
       <main className="flex-1 overflow-x-clip">
         {/* Hero */}
         <section className="relative overflow-hidden bg-navy text-cream">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover opacity-50"
+          >
+            <source src="/video/hero-bg.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-navy/60" />
           <ParallaxShape
             className="absolute -right-24 -top-24 h-72 w-72 rotate-12 bg-orange/90 sm:h-96 sm:w-96"
             speed={0.12}
