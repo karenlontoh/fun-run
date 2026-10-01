@@ -149,6 +149,26 @@ begin
 end;
 $$;
 
+-- Hands out the next bib number for a category, mirroring the per-category
+-- sequence logic inside create_registration. Used when an admin edits a
+-- participant's category after the fact (PATCH /api/participants/[id]) — the
+-- participant needs a bib number from the new category's range, not the one
+-- they were originally assigned.
+create or replace function next_bib_number(p_category text)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_category = '5K' then
+    return nextval('bib_number_seq_5k');
+  else
+    return nextval('bib_number_seq_25k');
+  end if;
+end;
+$$;
+
 -- Row Level Security: no policies are defined below, so RLS denies all
 -- access by default for the anon/public role. The app never uses the anon
 -- key to touch these tables directly — every read and write (including the
