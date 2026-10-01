@@ -5,7 +5,7 @@ import { RegistrationsTable } from "@/app/verify/RegistrationsTable";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getPaymentProofSignedUrl } from "@/lib/storage";
 import { formatIDR } from "@/lib/pricing";
-import type { Participant, Registration } from "@/lib/types";
+import { AGE_GROUPS, CATEGORIES, jerseySizesFor, type Participant, type Registration } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +80,20 @@ export default async function VerifyIndexPage() {
     { label: "5K — Male", count: countAttendedBy("5K", "L") },
     { label: "5K — Female", count: countAttendedBy("5K", "P") },
   ];
+
+  const AGE_GROUP_LABEL: Record<string, string> = { anak: "Anak", dewasa: "Dewasa" };
+  const jerseyBreakdown = CATEGORIES.map((category) => ({
+    category,
+    rows: AGE_GROUPS.flatMap((ageGroup) =>
+      jerseySizesFor(ageGroup).map((size) => ({
+        ageGroup,
+        size,
+        count: verifiedParticipants.filter(
+          (p) => p.category === category && p.age_group === ageGroup && p.jersey_size === size
+        ).length,
+      }))
+    ),
+  }));
 
   return (
     <>
@@ -182,6 +196,38 @@ export default async function VerifyIndexPage() {
               </div>
             ))}
           </div>
+
+          <details className="group mt-6 rounded-xl border border-navy/10 bg-white">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-xs font-semibold uppercase tracking-wide text-navy/50">
+              Jersey Breakdown (Verified, by Size)
+              <span className="text-orange transition group-open:rotate-45">+</span>
+            </summary>
+            <div className="grid gap-6 border-t border-navy/10 px-5 py-5 sm:grid-cols-2">
+              {jerseyBreakdown.map(({ category, rows: sizeRows }) => (
+                <div key={category}>
+                  <p className="font-display text-lg text-navy">{category}</p>
+                  <table className="mt-2 w-full text-left text-sm">
+                    <thead>
+                      <tr className="text-xs uppercase tracking-wide text-navy/50">
+                        <th className="py-1.5 pr-3">Age Group</th>
+                        <th className="py-1.5 pr-3">Size</th>
+                        <th className="py-1.5">Count</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-navy/10">
+                      {sizeRows.map(({ ageGroup, size, count }) => (
+                        <tr key={`${ageGroup}-${size}`}>
+                          <td className="py-1.5 pr-3 text-navy/70">{AGE_GROUP_LABEL[ageGroup]}</td>
+                          <td className="py-1.5 pr-3 font-semibold text-navy">{size}</td>
+                          <td className="py-1.5 text-navy/70">{count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
+          </details>
 
           <RegistrationsTable rows={rows} />
         </div>
