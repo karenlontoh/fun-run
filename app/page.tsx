@@ -32,25 +32,6 @@ const ROUTES = [
   },
 ];
 
-const HOW_IT_WORKS = [
-  {
-    title: "Register",
-    description: "Fill in your details, add participants, and upload your payment proof.",
-  },
-  {
-    title: "Get Your QR",
-    description: "Receive a group QR code instantly, plus a full PDF sent straight to your email.",
-  },
-  {
-    title: "Race Pack Collection",
-    description:
-      "13–14 October, 6:00 PM – 10:00 PM at GPIB Paulus Jakarta. Show your QR code to collect your jersey and race pack.",
-  },
-  {
-    title: "Race Day",
-    description: "Join everyone at the start line and enjoy the run at your own pace.",
-  },
-];
 
 const RACE_DAY_TIMELINE = [
   {
@@ -167,7 +148,8 @@ export default function Home() {
                 <div className="col-span-2">
                   <dt className="text-cream/60">Race Pack Collection</dt>
                   <dd className="font-semibold">
-                    13–14 October, 6:00 PM – 10:00 PM at GPIB Paulus Jakarta
+                    {EVENT.racePackCollectionDates}, {EVENT.racePackCollectionTime} at{" "}
+                    {EVENT.racePackCollectionVenue}
                   </dd>
                 </div>
               </dl>
@@ -226,10 +208,54 @@ export default function Home() {
 
         <MarqueeBanner text={TICKER_TEXT} />
 
+        {/* Race Pack Collection */}
+        <section className="bg-navy py-16 text-cream sm:py-24">
+          <div className="mx-auto max-w-4xl px-5">
+            <Reveal>
+              <Eyebrow index="02" label="RACE PACK COLLECTION" className="text-lime" />
+              <h2 className="font-display mt-4 text-4xl sm:text-5xl">Collect Your Race Pack</h2>
+              <p className="mt-3 max-w-xl text-cream/70">
+                Bring your QR code and come collect your jersey and race pack before race day.
+              </p>
+            </Reveal>
+            <Reveal delay={120}>
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl border border-cream/15 bg-white/5 px-5 py-4">
+                  <p className="text-xs text-cream/50">Dates</p>
+                  <p className="mt-1 font-semibold">{EVENT.racePackCollectionDates}</p>
+                </div>
+                <div className="rounded-2xl border border-cream/15 bg-white/5 px-5 py-4">
+                  <p className="text-xs text-cream/50">Time</p>
+                  <p className="mt-1 font-semibold">{EVENT.racePackCollectionTime}</p>
+                </div>
+                <div className="rounded-2xl border border-cream/15 bg-white/5 px-5 py-4">
+                  <p className="text-xs text-cream/50">Venue</p>
+                  <p className="mt-1 font-semibold">{EVENT.racePackCollectionVenue}</p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="mt-8 rounded-2xl border border-orange/40 bg-orange/10 px-6 py-5">
+                <p className="font-semibold text-orange">Can&apos;t collect it yourself?</p>
+                <p className="mt-1 text-sm text-cream/80">
+                  Someone else can collect on your behalf if they bring a signed authorization
+                  letter (Surat Kuasa), along with a copy of their ID and your payment proof.
+                </p>
+                <a
+                  href="/documents/surat-kuasa-paulus-fun-run-2026.docx"
+                  className="mt-4 inline-block rounded-full bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
+                >
+                  Download Surat Kuasa
+                </a>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* Official Jersey */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="02" label="OFFICIAL JERSEY" className="text-orange" />
+            <Eyebrow index="03" label="OFFICIAL JERSEY" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               This Year&apos;s <span className="text-orange">Jersey</span>
             </h2>
@@ -284,7 +310,7 @@ export default function Home() {
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="03" label="THE ROUTE" className="text-lime" />
+              <Eyebrow index="04" label="THE ROUTE" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">Where You&apos;ll Run</h2>
               <p className="mt-3 max-w-xl text-cream/70">
                 Both routes start and finish at {EVENT.church}, looping through the
@@ -319,29 +345,6 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
-          <Reveal>
-            <Eyebrow index="04" label="HOW IT WORKS" className="text-orange" />
-            <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
-              Four Steps To Race Day
-            </h2>
-          </Reveal>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {HOW_IT_WORKS.map((step, i) => (
-              <Reveal key={step.title} delay={i * 100}>
-                <TiltCard className="h-full rounded-2xl border border-navy/10 bg-white p-6">
-                  <p className="font-display text-5xl text-lime-dark">
-                    {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <p className="font-display mt-3 text-xl text-navy">{step.title}</p>
-                  <p className="mt-2 text-sm text-navy/70">{step.description}</p>
-                </TiltCard>
-              </Reveal>
-            ))}
           </div>
         </section>
 

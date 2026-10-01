@@ -10,6 +10,9 @@ export const EVENT = {
   address: "Jl. Taman Sunda Kelapa No. 12",
   registrationOpen: "9 August 2026",
   registrationClose: "30 September 2026",
+  racePackCollectionDates: "13–14 October 2026",
+  racePackCollectionTime: "6:00 PM – 10:00 PM",
+  racePackCollectionVenue: "GPIB Paulus Jakarta",
   // ISO timestamp (WIB, UTC+7) the countdown on the homepage counts down to.
   registrationCloseAt: "2026-09-30T23:59:59+07:00",
   contactEmail: "funrun@gpibpaulusjakarta.org",
