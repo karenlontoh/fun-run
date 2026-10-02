@@ -198,19 +198,28 @@ create table if not exists charity_registrations (
 create table if not exists charity_participants (
   id uuid primary key default gen_random_uuid(),
   registration_id uuid not null references charity_registrations(id) on delete cascade,
-  full_name text not null
+  full_name text not null,
+  gender text not null default 'L' check (gender in ('L', 'P'))
 );
+
+alter table charity_participants add column if not exists gender text not null default 'L' check (gender in ('L', 'P'));
 
 create index if not exists charity_participants_registration_id_idx on charity_participants(registration_id);
 
+-- The original string-array version of create_charity_registration (before
+-- gender was collected) must be dropped explicitly — see create_registration
+-- above for why a changed parameter list needs this.
+drop function if exists create_charity_registration(text, text, text, integer, jsonb);
+
 -- Atomically creates one charity registration plus all of its participants,
--- mirroring create_registration's transactional guarantee.
+-- mirroring create_registration's transactional guarantee. p_participants is
+-- an array of {full_name, gender} objects.
 create or replace function create_charity_registration(
   p_contact_name text,
   p_contact_email text,
   p_contact_phone text,
   p_total_amount integer,
-  p_full_names jsonb
+  p_participants jsonb
 )
 returns table (
   registration_id uuid,
@@ -224,7 +233,7 @@ as $$
 declare
   v_registration_id uuid;
 begin
-  if jsonb_array_length(p_full_names) = 0 then
+  if jsonb_array_length(p_participants) = 0 then
     raise exception 'At least one participant is required';
   end if;
 
@@ -233,9 +242,9 @@ begin
   returning id into v_registration_id;
 
   return query
-  insert into charity_participants (registration_id, full_name)
-  select v_registration_id, value
-  from jsonb_array_elements_text(p_full_names) as value
+  insert into charity_participants (registration_id, full_name, gender)
+  select v_registration_id, p->>'full_name', p->>'gender'
+  from jsonb_array_elements(p_participants) as p
   returning charity_participants.registration_id, charity_participants.id, charity_participants.full_name;
 end;
 $$;

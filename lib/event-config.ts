@@ -44,8 +44,10 @@ export const PAYMENT = {
 export const CHARITY_WALK = {
   name: "Paulus Interfaith Fun Walk",
   underOrganization: "Kementerian Agama RI",
-  pricePerPerson: 250000,
-  uniqueCode: "008",
+  // This is a charity donation, not a fixed fee — minPerPerson is a floor,
+  // not an exact amount. Registrants can transfer more, so (unlike the main
+  // Fun Run) there's no unique-code suffix for exact bank-statement matching.
+  minPerPerson: 200000,
   // Hard cap on total participants — intentionally not shown on the public
   // page ("limited slots" only), just enforced server-side.
   maxParticipants: 100,

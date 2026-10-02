@@ -94,7 +94,7 @@ export type RegistrationWithParticipants = Registration & {
 };
 
 // Paulus Interfaith Fun Walk — a separate, simpler registration track: no BIB,
-// jersey size, category, or gender, since there's no race pack or medal.
+// jersey size, or category, since there's no race pack or medal.
 export type CharityRegistration = {
   id: string;
   created_at: string;
@@ -111,4 +111,5 @@ export type CharityParticipant = {
   id: string;
   registration_id: string;
   full_name: string;
+  gender: Gender;
 };

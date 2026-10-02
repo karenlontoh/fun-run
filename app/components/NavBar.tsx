@@ -4,8 +4,16 @@ import { hasLogo } from "@/lib/has-logo";
 import { ScrollShadowHeader } from "@/app/components/ScrollShadowHeader";
 import { isRegistrationClosed } from "@/lib/event-config";
 
-export function NavBar() {
+type Locale = "en" | "id";
+
+const LABELS: Record<Locale, { faq: string; register: string; closed: string }> = {
+  en: { faq: "FAQ", register: "REGISTER", closed: "CLOSED" },
+  id: { faq: "FAQ", register: "DAFTAR", closed: "DITUTUP" },
+};
+
+export function NavBar({ locale = "en" }: { locale?: Locale }) {
   const closed = isRegistrationClosed();
+  const t = LABELS[locale];
 
   return (
     <ScrollShadowHeader>
@@ -23,21 +31,21 @@ export function NavBar() {
         </Link>
         <nav className="flex items-center gap-4 text-sm font-semibold sm:gap-6 sm:text-base">
           <Link href="/#faq" className="hidden hover:text-lime sm:inline">
-            FAQ
+            {t.faq}
           </Link>
           {closed ? (
             <span
               className="cursor-not-allowed rounded-full bg-navy/10 px-4 py-2 font-display tracking-wide text-navy/40 sm:px-5"
               aria-disabled="true"
             >
-              CLOSED
+              {t.closed}
             </span>
           ) : (
             <Link
               href="/daftar"
               className="rounded-full bg-orange px-4 py-2 font-display tracking-wide text-cream transition hover:bg-orange-dark sm:px-5"
             >
-              REGISTER
+              {t.register}
             </Link>
           )}
         </nav>

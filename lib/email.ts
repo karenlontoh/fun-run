@@ -135,8 +135,8 @@ export async function sendCharityRegistrationEmail(params: {
   const { error } = await resend.emails.send({
     from: process.env.EMAIL_FROM ?? "Paulus Fun Run <onboarding@resend.dev>",
     to: params.to,
-    subject: `${CHARITY_WALK.name} — Registration Received`,
-    text: `Hi ${params.contactName},\n\nThanks for registering for ${CHARITY_WALK.name}, joining ${CHARITY_WALK.guest.name} (${CHARITY_WALK.guest.title})!\n\nRegistration ID: ${params.registrationId}\n\nThere's no BIB or race pack for this session — just show up and walk for a good cause. We'll confirm your payment shortly.\n\nSee you there!\n${EVENT.church}`,
+    subject: `${CHARITY_WALK.name} — Pendaftaran Diterima`,
+    text: `Halo ${params.contactName},\n\nTerima kasih sudah mendaftar untuk ${CHARITY_WALK.name}, bergabung bersama ${CHARITY_WALK.guest.name} (${CHARITY_WALK.guest.title})!\n\nID Registrasi: ${params.registrationId}\n\nTidak ada BIB atau race pack untuk sesi ini — cukup datang dan jalan untuk tujuan baik. Kami akan segera mengkonfirmasi pembayaran kamu.\n\nSampai jumpa di sana!\n${EVENT.church}`,
   });
 
   return { error: error?.message ?? null };
@@ -151,6 +151,7 @@ function buildCharityAdminNotificationEmailHtml(
       (p) => `
         <tr>
           <td style="padding:6px 10px;border-bottom:1px solid #e5e5e5;">${escapeHtml(p.full_name)}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #e5e5e5;">${p.gender === "L" ? "Male" : "Female"}</td>
         </tr>`
     )
     .join("");
@@ -173,6 +174,7 @@ function buildCharityAdminNotificationEmailHtml(
         <thead>
           <tr style="background:#f2f2f2;text-align:left;">
             <th style="padding:6px 10px;">Name</th>
+            <th style="padding:6px 10px;">Gender</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>

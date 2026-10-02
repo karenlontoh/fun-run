@@ -1,12 +1,21 @@
 import { EVENT } from "@/lib/event-config";
 
-export function Footer() {
+type Locale = "en" | "id";
+
+const LABELS: Record<Locale, { organizedBy: string; rights: string }> = {
+  en: { organizedBy: "Organized by", rights: "All rights reserved." },
+  id: { organizedBy: "Diselenggarakan oleh", rights: "Hak cipta dilindungi." },
+};
+
+export function Footer({ locale = "en" }: { locale?: Locale }) {
+  const t = LABELS[locale];
+
   return (
     <footer className="mt-auto bg-navy text-cream">
       <div className="mx-auto max-w-6xl px-5 py-10">
         <p className="font-display text-2xl tracking-wide">PAULUS FUN RUN</p>
         <p className="mt-2 max-w-md text-sm text-cream/80">
-          Organized by {EVENT.church}.
+          {t.organizedBy} {EVENT.church}.
           <br />
           {EVENT.address}.
         </p>
@@ -21,7 +30,7 @@ export function Footer() {
           </a>
         </div>
         <p className="mt-8 border-t border-cream/10 pt-6 text-xs text-cream/50">
-          © {new Date().getFullYear()} {EVENT.church}. All rights reserved.
+          © {new Date().getFullYear()} {EVENT.church}. {t.rights}
         </p>
       </div>
     </footer>

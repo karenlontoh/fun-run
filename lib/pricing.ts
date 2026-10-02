@@ -23,8 +23,11 @@ export function calculateTransferAmount(categories: string[]): number {
   return addUniqueCode(calculateTotal(categories));
 }
 
-export function calculateCharityTransferAmount(participantCount: number): number {
-  return participantCount * CHARITY_WALK.pricePerPerson + Number(CHARITY_WALK.uniqueCode);
+// The minimum donation for a charity registration, with the shared unique
+// code appended so the committee can still spot it on the bank statement —
+// registrants are free to transfer more than this floor.
+export function calculateCharityMinAmount(participantCount: number): number {
+  return addUniqueCode(participantCount * CHARITY_WALK.minPerPerson);
 }
 
 export function formatIDR(amount: number): string {
