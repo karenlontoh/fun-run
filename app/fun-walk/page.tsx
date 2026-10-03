@@ -28,8 +28,8 @@ export default function FunWalkPage() {
               <p className="font-display text-sm tracking-[0.3em] text-lime">CHARITY</p>
               <h1 className="font-display mt-2 text-4xl sm:text-5xl">{CHARITY_WALK.name}</h1>
               <p className="mt-4 text-cream/80">
-                Rangkaian Paulus Fun Run 2026 — jalan bersama lintas agama, tanpa BIB, race pack,
-                atau medali. Diikuti bersama:
+                Rangkaian Paulus Fun Run 2026 — jalan santai sejauh 1,5 km bersama lintas agama,
+                tanpa BIB, race pack, atau medali. Diikuti bersama:
               </p>
               <p className="font-display mt-4 text-2xl text-lime">{CHARITY_WALK.guest.name}</p>
               <p className="text-cream/70">{CHARITY_WALK.guest.title}</p>
