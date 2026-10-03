@@ -237,8 +237,11 @@ begin
     raise exception 'At least one participant is required';
   end if;
 
-  insert into charity_registrations (contact_name, contact_email, contact_phone, total_amount)
-  values (p_contact_name, p_contact_email, p_contact_phone, p_total_amount)
+  -- Every charity registration comes through this public, pay-by-transfer
+  -- form — there's no cash/manual-entry admin flow for the Fun Walk (yet),
+  -- so payment_method is always 'transfer'.
+  insert into charity_registrations (contact_name, contact_email, contact_phone, total_amount, payment_method)
+  values (p_contact_name, p_contact_email, p_contact_phone, p_total_amount, 'transfer')
   returning id into v_registration_id;
 
   return query
