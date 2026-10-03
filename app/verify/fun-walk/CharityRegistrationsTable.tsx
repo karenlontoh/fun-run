@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { formatIDR } from "@/lib/pricing";
 import { PAYMENT_STATUSES, type CharityParticipant, type CharityRegistration, type PaymentStatus } from "@/lib/types";
 
@@ -132,6 +133,8 @@ export function CharityRegistrationsTable({ rows: initialRows }: { rows: Row[] }
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Payment Proof</th>
               <th className="px-4 py-3"></th>
+              <th className="px-4 py-3"></th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-navy/10">
@@ -190,6 +193,24 @@ export function CharityRegistrationsTable({ rows: initialRows }: { rows: Row[] }
                     ) : (
                       <span className="text-navy/40">Not uploaded</span>
                     )}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <a
+                      href={`/api/charity/registrations/${registration.id}/pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-navy underline decoration-lime decoration-2 underline-offset-4"
+                    >
+                      View PDF
+                    </a>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <Link
+                      href={`/verify/fun-walk/${registration.id}`}
+                      className="font-semibold text-orange hover:underline"
+                    >
+                      View Group →
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3">
                     <button

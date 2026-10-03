@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontFamily: "Helvetica-Bold",
+    lineHeight: 1.3,
     marginBottom: 12,
   },
   section: {
@@ -173,7 +174,10 @@ export async function generateCharityRegistrationPdf(
     <Document>
       <Page size="A4" style={styles.page}>
         <Text style={styles.kicker}>{EVENT.church.toUpperCase()}</Text>
-        <Text style={styles.title}>{CHARITY_WALK.name} — Konfirmasi Pendaftaran</Text>
+        <Text style={styles.title}>
+          {CHARITY_WALK.name}
+          {"\n"}Konfirmasi Pendaftaran
+        </Text>
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Didaftarkan Oleh</Text>
