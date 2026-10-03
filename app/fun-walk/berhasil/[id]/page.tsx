@@ -45,9 +45,9 @@ export default async function FunWalkSuccessPage({
           <p className="font-display text-sm tracking-[0.3em] text-lime-dark">
             PENDAFTARAN BERHASIL
           </p>
-          <h1 className="font-display mt-2 text-4xl text-navy sm:text-5xl">Sampai Jumpa di Sana!</h1>
+          <h1 className="font-display mt-2 text-4xl text-navy sm:text-5xl">Terima Kasih!</h1>
           <p className="mx-auto mt-4 max-w-lg text-navy/70">
-            Terima kasih telah bergabung dengan {CHARITY_WALK.name} bersama {CHARITY_WALK.guest.name}.
+            Kamu sudah bergabung dengan {CHARITY_WALK.name} bersama {CHARITY_WALK.guest.name}.
             Tidak ada BIB atau race pack untuk sesi ini — cukup datang dan jalan bersama kami.
           </p>
           <p className="mt-4 text-xs text-navy/50">ID Registrasi: {id}</p>
