@@ -141,7 +141,7 @@ export function FunWalkForm() {
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
               className="mt-1 w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
-              placeholder="Nama kamu"
+              placeholder="Nama lengkap"
             />
           </label>
           <label className="block">
@@ -239,8 +239,7 @@ export function FunWalkForm() {
           <p className="mt-2 text-base text-cream/90">Atas nama: {PAYMENT.accountHolder}</p>
           <p className="mt-3 border-t border-white/10 pt-3">
             Transfer minimal{" "}
-            <span className="font-display text-lime">{formatIDR(minAmount)}</span>. Donasi lebih
-            dari itu dipersilakan.
+            <span className="font-display text-lime">{formatIDR(minAmount)}</span>.
           </p>
         </div>
 
