@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
+import { Reveal } from "@/app/components/Reveal";
+import { ParallaxShape } from "@/app/components/ParallaxShape";
 import { CHARITY_WALK } from "@/lib/event-config";
 import { FunWalkForm } from "./FunWalkForm";
 
@@ -13,30 +14,56 @@ export default function FunWalkPage() {
   return (
     <>
       <NavBar locale="id" />
-      <main className="flex-1 bg-cream">
-        <section className="bg-navy py-16 text-cream sm:py-20">
-          <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 px-5 text-center sm:flex-row sm:text-left">
-            <div className="relative h-56 w-44 flex-shrink-0 sm:h-64 sm:w-52">
-              <Image
-                src={CHARITY_WALK.guest.photo}
-                alt={CHARITY_WALK.guest.name}
-                fill
-                className="object-contain object-bottom"
-              />
-            </div>
-            <div>
+      <main className="flex-1 overflow-x-clip">
+        <section className="relative overflow-hidden bg-navy text-cream">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover opacity-50"
+          >
+            <source src="/video/hero-bg.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-navy/75" />
+          <ParallaxShape
+            className="absolute -right-24 -top-24 h-72 w-72 rotate-12 bg-orange/40 sm:h-96 sm:w-96"
+            speed={0.12}
+          />
+          <ParallaxShape
+            className="absolute -left-40 -bottom-24 h-64 w-64 -rotate-12 bg-lime/30 sm:h-80 sm:w-80"
+            speed={-0.08}
+          />
+          <div className="relative mx-auto max-w-4xl px-5 py-20 sm:py-28">
+            <Reveal delay={100}>
               <p className="font-display text-sm tracking-[0.3em] text-lime">CHARITY</p>
-              <h1 className="font-display mt-2 text-4xl sm:text-5xl">{CHARITY_WALK.name}</h1>
-              <p className="mt-4 text-cream/80">
-                Rangkaian Paulus Fun Run 2026 — jalan santai sejauh 1,5 km bersama lintas agama,
-                tanpa BIB, race pack, atau medali. Diikuti bersama:
+              <h1 className="font-display mt-2 text-5xl leading-[0.95] sm:text-7xl">
+                {CHARITY_WALK.name}
+              </h1>
+            </Reveal>
+            <Reveal delay={200}>
+              <p className="mt-5 max-w-xl text-base text-cream/90 sm:text-lg">
+                Jalan santai sejauh 1,5 km bersama lintas agama, tanpa BIB, race pack, atau
+                medali. Diikuti bersama:
               </p>
               <p className="font-display mt-4 text-2xl text-lime">{CHARITY_WALK.guest.name}</p>
               <p className="text-cream/70">{CHARITY_WALK.guest.title}</p>
-              <p className="mt-4 inline-block rounded-full bg-orange/20 px-4 py-1.5 text-xs font-semibold tracking-wide text-orange">
+            </Reveal>
+            <Reveal delay={300}>
+              <p className="mt-6 inline-block rounded-full bg-orange/20 px-4 py-1.5 text-xs font-semibold tracking-wide text-orange">
                 SLOT TERBATAS — DAFTAR SEGERA
               </p>
-            </div>
+            </Reveal>
+            <Reveal delay={400}>
+              <div className="mt-10 flex flex-wrap gap-4">
+                <a
+                  href="#daftar"
+                  className="font-display rounded-full bg-orange px-8 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
+                >
+                  DAFTAR SEKARANG
+                </a>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -61,7 +88,7 @@ export default function FunWalkPage() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-3xl px-5 pb-14 sm:pb-20">
+        <div id="daftar" className="mx-auto max-w-3xl px-5 pb-14 sm:pb-20">
           <p className="font-display text-sm tracking-[0.3em] text-orange">PENDAFTARAN</p>
           <h2 className="font-display mt-2 text-3xl text-navy sm:text-4xl">Gabung Fun Walk</h2>
           <p className="mt-4 text-navy/70">Isi form di bawah ini untuk mendaftar.</p>

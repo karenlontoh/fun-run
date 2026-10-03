@@ -141,7 +141,21 @@ export default function Home() {
                 </div>
               </dl>
             </Reveal>
-            {!closed && (
+            {closed ? (
+              <Reveal delay={400}>
+                <div className="mt-10 max-w-md rounded-2xl border border-cream/20 bg-white/5 px-6 py-5">
+                  <p className="font-semibold text-cream">
+                    Fun Run registration is closed, but the Interfaith Fun Walk is still open!
+                  </p>
+                  <Link
+                    href="/fun-walk"
+                    className="font-display mt-4 inline-block rounded-full bg-orange px-6 py-3 text-base tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
+                  >
+                    JOIN THE FUN WALK
+                  </Link>
+                </div>
+              </Reveal>
+            ) : (
               <Reveal delay={400}>
                 <div className="mt-10 flex flex-wrap gap-4">
                   <Link
@@ -377,7 +391,18 @@ export default function Home() {
               {closed ? "SEE YOU ON RACE DAY!" : "READY TO RUN?"}
             </h2>
             {closed ? (
-              <p className="mt-3 text-cream/90">Registration is now closed. Thanks to everyone who signed up!</p>
+              <>
+                <p className="mt-3 text-cream/90">
+                  Fun Run registration is closed. Thanks to everyone who signed up! The
+                  Interfaith Fun Walk is still open, though —
+                </p>
+                <Link
+                  href="/fun-walk"
+                  className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
+                >
+                  JOIN THE FUN WALK
+                </Link>
+              </>
             ) : (
               <>
                 <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
