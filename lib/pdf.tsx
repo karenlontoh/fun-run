@@ -3,8 +3,8 @@ import { Document, Page, View, Text, Image, StyleSheet, renderToBuffer } from "@
 import { generateQrDataUrl } from "./qrcode";
 import { verifyUrl } from "./site";
 import { formatIDR } from "./pricing";
-import { EVENT } from "./event-config";
-import type { Participant, Registration } from "./types";
+import { EVENT, CHARITY_WALK } from "./event-config";
+import type { CharityParticipant, CharityRegistration, Participant, Registration } from "./types";
 
 const styles = StyleSheet.create({
   page: {
@@ -157,6 +157,50 @@ export async function generateRegistrationPdf(
           </View>
         </Page>
       ))}
+    </Document>
+  );
+
+  return renderToBuffer(doc);
+}
+
+// Simpler than the Fun Run PDF — no BIB, jersey, or QR codes, since the
+// charity walk has no race pack or check-in to scan for.
+export async function generateCharityRegistrationPdf(
+  registration: CharityRegistration,
+  participants: CharityParticipant[]
+): Promise<Buffer> {
+  const doc = (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.kicker}>{EVENT.church.toUpperCase()}</Text>
+        <Text style={styles.title}>{CHARITY_WALK.name} — Konfirmasi Pendaftaran</Text>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Didaftarkan Oleh</Text>
+          <Text style={styles.sectionValue}>{registration.contact_name}</Text>
+          <Text style={styles.participantLine}>{registration.contact_email}</Text>
+          <Text style={styles.participantLine}>{registration.contact_phone}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Peserta ({participants.length})</Text>
+          {participants.map((p) => (
+            <Text key={p.id} style={styles.participantLine}>
+              {p.full_name} — {p.gender === "L" ? "Laki-laki" : "Perempuan"}
+            </Text>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Total Pembayaran</Text>
+          <Text style={styles.sectionValue}>{formatIDR(registration.total_amount)}</Text>
+        </View>
+
+        <Text style={styles.footer}>
+          ID Registrasi: {registration.id}. Tidak ada BIB atau race pack untuk sesi ini — cukup
+          datang dan jalan bersama kami.
+        </Text>
+      </Page>
     </Document>
   );
 

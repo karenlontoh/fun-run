@@ -127,6 +127,7 @@ export async function sendCharityRegistrationEmail(params: {
   to: string;
   contactName: string;
   registrationId: string;
+  pdfBuffer: Buffer;
 }): Promise<{ error: string | null }> {
   if (!resend) {
     return { error: "RESEND_API_KEY is not configured" };
@@ -136,7 +137,13 @@ export async function sendCharityRegistrationEmail(params: {
     from: process.env.EMAIL_FROM ?? "Paulus Fun Run <onboarding@resend.dev>",
     to: params.to,
     subject: `${CHARITY_WALK.name} — Pendaftaran Diterima`,
-    text: `Halo ${params.contactName},\n\nTerima kasih sudah mendaftar untuk ${CHARITY_WALK.name}, bergabung bersama ${CHARITY_WALK.guest.name} (${CHARITY_WALK.guest.title})!\n\nID Registrasi: ${params.registrationId}\n\nTidak ada BIB atau race pack untuk sesi ini — cukup datang dan jalan untuk tujuan baik. Kami akan segera mengkonfirmasi pembayaran kamu.\n\nSampai jumpa di sana!\n${EVENT.church}`,
+    text: `Halo ${params.contactName},\n\nTerima kasih sudah mendaftar untuk ${CHARITY_WALK.name}!\n\nID Registrasi: ${params.registrationId}\n\nTidak ada BIB atau race pack untuk sesi ini — cukup datang dan jalan untuk tujuan baik. Kami akan segera mengkonfirmasi pembayaran kamu.\n\nSampai jumpa di sana!\n${EVENT.church}`,
+    attachments: [
+      {
+        filename: `paulus-interfaith-fun-walk-${params.registrationId}.pdf`,
+        content: params.pdfBuffer,
+      },
+    ],
   });
 
   return { error: error?.message ?? null };

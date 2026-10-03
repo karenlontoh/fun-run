@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { uploadPaymentProof } from "@/lib/storage";
 import { calculateCharityMinAmount } from "@/lib/pricing";
+import { generateCharityRegistrationPdf } from "@/lib/pdf";
 import { sendCharityAdminNotificationEmail, sendCharityRegistrationEmail } from "@/lib/email";
 import { CHARITY_WALK } from "@/lib/event-config";
 import type { CharityParticipant, CharityRegistration } from "@/lib/types";
@@ -173,10 +174,12 @@ export async function POST(request: Request) {
       payment_method: "transfer",
     };
 
+    const pdfBuffer = await generateCharityRegistrationPdf(registration, fullParticipants ?? []);
     const { error: emailError } = await sendCharityRegistrationEmail({
       to: contact_email,
       contactName: contact_name,
       registrationId,
+      pdfBuffer,
     });
     if (emailError) {
       console.error("sendCharityRegistrationEmail failed", emailError);
