@@ -9,7 +9,16 @@ import { MarqueeBanner } from "@/app/components/MarqueeBanner";
 import { Eyebrow } from "@/app/components/Eyebrow";
 import { RouteMap } from "@/app/components/RouteMap";
 import { SizeChartTable } from "@/app/components/SizeChartTable";
-import { EVENT, BENEFITS, JERSEYS, TICKER_TEXT, isRegistrationClosed } from "@/lib/event-config";
+import {
+  EVENT,
+  BENEFITS,
+  JERSEYS,
+  TICKER_TEXT,
+  CATEGORY_INFO,
+  CHARITY_WALK,
+  isRegistrationClosed,
+} from "@/lib/event-config";
+import { formatIDR } from "@/lib/pricing";
 import route5k from "@/lib/routes-5k.json";
 import route2_5k from "@/lib/routes-2.5k.json";
 
@@ -141,21 +150,7 @@ export default function Home() {
                 </div>
               </dl>
             </Reveal>
-            {closed ? (
-              <Reveal delay={400}>
-                <div className="mt-10 max-w-md rounded-2xl border border-cream/20 bg-white/5 px-6 py-5">
-                  <p className="font-semibold text-cream">
-                    Fun Run registration is closed, but the Interfaith Fun Walk is still open!
-                  </p>
-                  <Link
-                    href="/fun-walk"
-                    className="font-display mt-4 inline-block rounded-full bg-orange px-6 py-3 text-base tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-orange-dark hover:shadow-xl active:translate-y-0 active:scale-100"
-                  >
-                    JOIN THE FUN WALK
-                  </Link>
-                </div>
-              </Reveal>
-            ) : (
+            {!closed && (
               <Reveal delay={400}>
                 <div className="mt-10 flex flex-wrap gap-4">
                   <Link
@@ -170,11 +165,58 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Categories */}
+        <section id="kategori" className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
+          <Reveal>
+            <Eyebrow index="01" label="CATEGORIES" className="text-orange" />
+            <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
+              Pick Your <span className="text-orange">Distance</span>
+            </h2>
+            <p className="mt-3 max-w-xl text-navy/70">
+              Fun Run registration has closed, but the Interfaith Fun Walk is still open to join.
+            </p>
+          </Reveal>
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {CATEGORY_INFO.map((c, i) => (
+              <Reveal key={c.code} delay={i * 100}>
+                <div className="relative h-full rounded-2xl border border-navy/10 bg-white p-6 shadow-sm">
+                  <span className="inline-block rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold tracking-wide text-navy/50">
+                    CLOSED
+                  </span>
+                  <p className="font-display mt-3 text-3xl text-navy/40">{c.code}</p>
+                  <p className="mt-2 text-sm text-navy/50">{c.description}</p>
+                  <p className="mt-4 font-semibold text-navy/40">{formatIDR(c.price)}</p>
+                </div>
+              </Reveal>
+            ))}
+            <Reveal delay={CATEGORY_INFO.length * 100}>
+              <div className="relative h-full rounded-2xl border-2 border-lime bg-white p-6 shadow-sm">
+                <span className="inline-block rounded-full bg-lime/20 px-3 py-1 text-xs font-semibold tracking-wide text-lime-dark">
+                  OPEN
+                </span>
+                <p className="font-display mt-3 text-3xl text-navy">Fun Walk — 1.5K</p>
+                <p className="mt-2 text-sm text-navy/70">
+                  A charity walk for everyone, no matter your faith — no BIB, race pack, or medal.
+                </p>
+                <p className="mt-4 font-semibold text-navy">
+                  From {formatIDR(CHARITY_WALK.minPerPerson)}
+                </p>
+                <Link
+                  href="/fun-walk"
+                  className="font-display mt-4 inline-block rounded-full bg-orange px-5 py-2.5 text-sm tracking-wide text-cream transition hover:bg-orange-dark"
+                >
+                  JOIN THE FUN WALK
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* Race Pack Collection */}
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="01" label="RACE PACK COLLECTION" className="text-lime" />
+              <Eyebrow index="02" label="RACE PACK COLLECTION" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">Collect Your Race Pack</h2>
               <p className="mt-3 max-w-xl text-cream/70">
                 Bring your QR code and come collect your jersey and race pack before race day.
@@ -219,7 +261,7 @@ export default function Home() {
         {/* Official Jersey */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="02" label="OFFICIAL JERSEY" className="text-orange" />
+            <Eyebrow index="03" label="OFFICIAL JERSEY" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               This Year&apos;s <span className="text-orange">Jersey</span>
             </h2>
@@ -274,7 +316,7 @@ export default function Home() {
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="03" label="THE ROUTE" className="text-lime" />
+              <Eyebrow index="04" label="THE ROUTE" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">Where You&apos;ll Run</h2>
               <p className="mt-3 max-w-xl text-cream/70">
                 Both routes start and finish at {EVENT.church}, looping through the
@@ -315,7 +357,7 @@ export default function Home() {
         {/* Benefits */}
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="04" label="WHAT YOU'LL GET" className="text-orange" />
+            <Eyebrow index="05" label="WHAT YOU'LL GET" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               What You&apos;ll <span className="text-orange">Get</span>
             </h2>
@@ -346,7 +388,7 @@ export default function Home() {
         <section className="bg-navy py-16 text-cream sm:py-24">
           <div className="mx-auto max-w-4xl px-5">
             <Reveal>
-              <Eyebrow index="05" label="RACE DAY" className="text-lime" />
+              <Eyebrow index="06" label="RACE DAY" className="text-lime" />
               <h2 className="font-display mt-4 text-4xl sm:text-5xl">What To Expect</h2>
             </Reveal>
             <div className="mt-12 space-y-8 border-l-2 border-cream/20 pl-8">
@@ -364,7 +406,7 @@ export default function Home() {
         {/* FAQ */}
         <section id="faq" className="mx-auto max-w-4xl px-5 py-16 sm:py-24">
           <Reveal>
-            <Eyebrow index="06" label="FAQ" className="text-orange" />
+            <Eyebrow index="07" label="FAQ" className="text-orange" />
             <h2 className="font-display mt-4 text-4xl text-navy sm:text-5xl">
               Frequently Asked Questions
             </h2>
@@ -391,18 +433,7 @@ export default function Home() {
               {closed ? "SEE YOU ON RACE DAY!" : "READY TO RUN?"}
             </h2>
             {closed ? (
-              <>
-                <p className="mt-3 text-cream/90">
-                  Fun Run registration is closed. Thanks to everyone who signed up! The
-                  Interfaith Fun Walk is still open, though —
-                </p>
-                <Link
-                  href="/fun-walk"
-                  className="font-display mt-8 inline-block rounded-full bg-navy px-10 py-4 text-lg tracking-wide text-cream shadow-lg transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-navy-light hover:shadow-xl active:translate-y-0 active:scale-100"
-                >
-                  JOIN THE FUN WALK
-                </Link>
-              </>
+              <p className="mt-3 text-cream/90">Registration is now closed. Thanks to everyone who signed up!</p>
             ) : (
               <>
                 <p className="mt-3 text-cream/90">Register now and bring your family &amp; friends along.</p>
