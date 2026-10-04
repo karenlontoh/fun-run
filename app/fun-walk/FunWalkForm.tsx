@@ -11,10 +11,11 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 type ParticipantForm = {
   full_name: string;
   gender: Gender;
+  institution: string;
 };
 
 function emptyParticipant(): ParticipantForm {
-  return { full_name: "", gender: "L" };
+  return { full_name: "", gender: "L", institution: "" };
 }
 
 export function FunWalkForm() {
@@ -172,33 +173,47 @@ export function FunWalkForm() {
       <section>
         <h2 className="font-display text-2xl text-navy">Peserta</h2>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-5 space-y-4">
           {participants.map((p, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <input
-                required
-                value={p.full_name}
-                onChange={(e) => updateParticipant(i, { full_name: e.target.value })}
-                className="w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
-                placeholder={`Nama peserta ${i + 1}`}
-              />
-              <select
-                value={p.gender}
-                onChange={(e) => updateParticipant(i, { gender: e.target.value as Gender })}
-                className="rounded-lg border border-navy/20 px-3 py-2.5 focus:border-orange focus:outline-none"
-              >
-                <option value="L">Laki-laki</option>
-                <option value="P">Perempuan</option>
-              </select>
-              {participants.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeParticipant(i)}
-                  className="text-sm font-semibold text-navy/50 hover:text-orange"
+            <div key={i} className="rounded-xl border border-navy/15 p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold tracking-wide text-navy/50">
+                  PESERTA {i + 1}
+                </p>
+                {participants.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeParticipant(i)}
+                    className="text-sm font-semibold text-navy/50 hover:text-orange"
+                  >
+                    Hapus
+                  </button>
+                )}
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <input
+                  required
+                  value={p.full_name}
+                  onChange={(e) => updateParticipant(i, { full_name: e.target.value })}
+                  className="w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
+                  placeholder="Nama peserta"
+                />
+                <select
+                  value={p.gender}
+                  onChange={(e) => updateParticipant(i, { gender: e.target.value as Gender })}
+                  className="w-full rounded-lg border border-navy/20 px-3 py-2.5 focus:border-orange focus:outline-none"
                 >
-                  Hapus
-                </button>
-              )}
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+                <input
+                  required
+                  value={p.institution}
+                  onChange={(e) => updateParticipant(i, { institution: e.target.value })}
+                  className="w-full rounded-lg border border-navy/20 px-4 py-2.5 focus:border-orange focus:outline-none"
+                  placeholder="Asal Gereja/Institusi/Lembaga"
+                />
+              </div>
             </div>
           ))}
         </div>

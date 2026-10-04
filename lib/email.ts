@@ -159,6 +159,7 @@ function buildCharityAdminNotificationEmailHtml(
         <tr>
           <td style="padding:6px 10px;border-bottom:1px solid #e5e5e5;">${escapeHtml(p.full_name)}</td>
           <td style="padding:6px 10px;border-bottom:1px solid #e5e5e5;">${p.gender === "L" ? "Male" : "Female"}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #e5e5e5;">${escapeHtml(p.institution)}</td>
         </tr>`
     )
     .join("");
@@ -182,6 +183,7 @@ function buildCharityAdminNotificationEmailHtml(
           <tr style="background:#f2f2f2;text-align:left;">
             <th style="padding:6px 10px;">Name</th>
             <th style="padding:6px 10px;">Gender</th>
+            <th style="padding:6px 10px;">Institution</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>

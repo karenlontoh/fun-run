@@ -190,7 +190,7 @@ export async function generateCharityRegistrationPdf(
           <Text style={styles.sectionLabel}>Peserta ({participants.length})</Text>
           {participants.map((p) => (
             <Text key={p.id} style={styles.participantLine}>
-              {p.full_name} — {p.gender === "L" ? "Laki-laki" : "Perempuan"}
+              {p.full_name} — {p.gender === "L" ? "Laki-laki" : "Perempuan"} — {p.institution}
             </Text>
           ))}
         </View>

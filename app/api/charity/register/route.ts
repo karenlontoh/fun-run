@@ -16,7 +16,7 @@ const ALLOWED_FILE_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
 };
 
-type CharityParticipantInput = { full_name: string; gender: "L" | "P" };
+type CharityParticipantInput = { full_name: string; gender: "L" | "P"; institution: string };
 
 function validateFields(body: {
   contact_name: unknown;
@@ -47,11 +47,13 @@ function validateFields(body: {
     const p = raw as Record<string, unknown>;
     const full_name = typeof p.full_name === "string" ? p.full_name.trim() : "";
     const gender = p.gender;
+    const institution = typeof p.institution === "string" ? p.institution.trim() : "";
     if (!full_name) return { ok: false, error: `Nama peserta ${i + 1} wajib diisi.` };
     if (gender !== "L" && gender !== "P") {
       return { ok: false, error: `Jenis kelamin peserta ${i + 1} tidak valid.` };
     }
-    participants.push({ full_name, gender });
+    if (!institution) return { ok: false, error: `Asal gereja/institusi peserta ${i + 1} wajib diisi.` };
+    participants.push({ full_name, gender, institution });
   }
 
   return { ok: true, value: { contact_name, contact_email, contact_phone, participants } };

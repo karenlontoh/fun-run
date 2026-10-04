@@ -58,7 +58,9 @@ export default async function FunWalkSuccessPage({
               {(participants ?? []).map((p) => (
                 <div key={p.id} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
                   <p className="font-semibold text-navy">{p.full_name}</p>
-                  <p className="text-sm text-navy/60">{p.gender === "L" ? "Laki-laki" : "Perempuan"}</p>
+                  <p className="text-sm text-navy/60">
+                    {p.gender === "L" ? "Laki-laki" : "Perempuan"} — {p.institution}
+                  </p>
                 </div>
               ))}
             </div>

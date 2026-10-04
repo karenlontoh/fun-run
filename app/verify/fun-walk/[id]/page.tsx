@@ -66,7 +66,9 @@ export default async function FunWalkGroupPage({
             {(participants ?? []).map((p) => (
               <div key={p.id} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
                 <p className="font-semibold text-navy">{p.full_name}</p>
-                <p className="text-sm text-navy/60">{p.gender === "L" ? "Male" : "Female"}</p>
+                <p className="text-sm text-navy/60">
+                  {p.gender === "L" ? "Male" : "Female"} — {p.institution}
+                </p>
               </div>
             ))}
           </div>

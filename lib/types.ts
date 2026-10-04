@@ -112,4 +112,5 @@ export type CharityParticipant = {
   registration_id: string;
   full_name: string;
   gender: Gender;
+  institution: string;
 };

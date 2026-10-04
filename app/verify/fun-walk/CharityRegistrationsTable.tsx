@@ -175,7 +175,7 @@ export function CharityRegistrationsTable({ rows: initialRows }: { rows: Row[] }
                     <p className="text-xs text-navy/50">{registration.contact_email}</p>
                   </td>
                   <td className="px-4 py-3 text-navy/70">
-                    {participants.map((p) => `${p.full_name} (${p.gender})`).join(", ") || "—"}
+                    {participants.map((p) => `${p.full_name} (${p.gender}, ${p.institution})`).join(", ") || "—"}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 font-semibold text-navy">
                     {formatIDR(registration.total_amount)}
