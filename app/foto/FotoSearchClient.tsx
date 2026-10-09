@@ -1,112 +1,156 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Photo = { id: string; url: string };
-type Stage = "form" | "loading" | "results" | "not_found" | "error";
+type Stage = "loading" | "ready" | "error";
 
 export function FotoSearchClient() {
-  const [bib, setBib] = useState("");
-  const [stage, setStage] = useState<Stage>("form");
+  const [bibInput, setBibInput] = useState("");
+  const [activeBib, setActiveBib] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [total, setTotal] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [stage, setStage] = useState<Stage>("loading");
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = bib.trim();
-    if (!trimmed) return;
+  useEffect(() => {
+    let cancelled = false;
 
-    setStage("loading");
-    try {
-      const res = await fetch(`/api/race-photos?bib=${encodeURIComponent(trimmed)}`);
-      if (!res.ok) {
-        setStage("error");
-        return;
+    async function load() {
+      setStage("loading");
+      try {
+        const params = new URLSearchParams({ page: String(page) });
+        if (activeBib) params.set("bib", activeBib);
+
+        const res = await fetch(`/api/race-photos?${params.toString()}`);
+        if (!res.ok) {
+          if (!cancelled) setStage("error");
+          return;
+        }
+        const data = await res.json();
+        if (cancelled) return;
+        setPhotos(data.photos ?? []);
+        setTotal(data.total ?? 0);
+        setPageSize(data.pageSize ?? 50);
+        setStage("ready");
+      } catch {
+        if (!cancelled) setStage("error");
       }
-      const data = await res.json();
-      const found = (data.photos ?? []) as Photo[];
-      setPhotos(found);
-      setStage(found.length > 0 ? "results" : "not_found");
-    } catch {
-      setStage("error");
     }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeBib, page]);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = bibInput.trim();
+    setActiveBib(trimmed || null);
+    setPage(1);
   }
 
-  function reset() {
-    setBib("");
-    setPhotos([]);
-    setStage("form");
+  function clearSearch() {
+    setBibInput("");
+    setActiveBib(null);
+    setPage(1);
   }
 
-  if (stage === "results") {
-    return (
-      <div>
-        <div className="mx-auto max-w-sm text-center">
-          <button type="button" onClick={reset} className="text-sm font-semibold text-navy/50 hover:text-orange">
-            ← Search another BIB
-          </button>
-          <p className="mt-2 text-sm text-navy/60">
-            {photos.length} photo{photos.length === 1 ? "" : "s"} found.
-          </p>
-        </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {photos.map((p) => (
-            <a
-              key={p.id}
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block overflow-hidden rounded-xl border border-navy/10 bg-white"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.url} alt="" className="h-56 w-full object-cover" />
-            </a>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <div className="mx-auto max-w-sm">
-      <form onSubmit={handleSearch} className="space-y-4">
-        <label className="block">
-          <span className="text-sm font-semibold text-navy">Your BIB Number</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            required
-            value={bib}
-            onChange={(e) => setBib(e.target.value)}
-            placeholder="e.g. 5024"
-            className="mt-1 w-full rounded-xl border border-navy/20 px-4 py-3 text-center font-display text-2xl focus:border-orange focus:outline-none"
-          />
-        </label>
+    <div>
+      <form onSubmit={handleSearch} className="mx-auto flex max-w-sm gap-2">
+        <input
+          type="number"
+          inputMode="numeric"
+          value={bibInput}
+          onChange={(e) => setBibInput(e.target.value)}
+          placeholder="Search by BIB number (optional)"
+          className="w-full rounded-xl border border-navy/20 px-4 py-2.5 text-center focus:border-orange focus:outline-none"
+        />
         <button
           type="submit"
-          disabled={stage === "loading"}
-          className="w-full rounded-full bg-orange px-4 py-3 font-display text-lg tracking-wide text-cream transition hover:bg-orange-dark disabled:opacity-60"
+          className="shrink-0 rounded-xl bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
         >
-          {stage === "loading" ? "SEARCHING..." : "FIND MY PHOTOS"}
+          Search
         </button>
       </form>
 
-      {stage === "not_found" && (
-        <div className="mt-6 rounded-2xl border border-orange/40 bg-orange/10 px-5 py-4 text-center text-sm text-orange-dark">
-          No photos found for that BIB number yet. Photos are added gradually after the event —
-          check back later.
-          <button type="button" onClick={reset} className="mt-3 block w-full font-semibold underline">
-            Try Another BIB
-          </button>
-        </div>
-      )}
+      <div className="mx-auto mt-3 max-w-sm text-center">
+        {activeBib ? (
+          <p className="text-sm text-navy/60">
+            Showing photos for BIB {activeBib} —{" "}
+            <button type="button" onClick={clearSearch} className="font-semibold text-orange hover:underline">
+              show all photos
+            </button>
+          </p>
+        ) : (
+          <p className="text-sm text-navy/60">Showing all photos.</p>
+        )}
+      </div>
 
       {stage === "error" && (
-        <div className="mt-6 rounded-2xl border border-orange/40 bg-orange/10 px-5 py-4 text-center text-sm text-orange-dark">
-          Something went wrong. Please try again.
-          <button type="button" onClick={reset} className="mt-3 block w-full font-semibold underline">
-            Try Again
-          </button>
-        </div>
+        <p className="mt-8 text-center text-sm font-semibold text-orange-dark">
+          Something went wrong loading photos. Please try again.
+        </p>
+      )}
+
+      {stage !== "error" && (
+        <>
+          <p className="mt-6 text-center text-sm text-navy/60">
+            {stage === "loading" ? "Loading..." : `${total} photo${total === 1 ? "" : "s"} found.`}
+          </p>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {photos.map((p) => (
+              <a
+                key={p.id}
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block overflow-hidden rounded-xl border border-navy/10 bg-white"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.url} alt="" className="h-56 w-full object-cover" loading="lazy" />
+              </a>
+            ))}
+          </div>
+
+          {stage === "ready" && photos.length === 0 && (
+            <p className="mt-6 text-center text-sm text-navy/60">
+              {activeBib
+                ? "No photos found for that BIB number yet. Photos are added gradually after the event — check back later."
+                : "No photos uploaded yet."}
+            </p>
+          )}
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-4 text-sm">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="rounded-full border border-navy/20 px-4 py-1.5 font-semibold text-navy transition hover:bg-navy/5 disabled:opacity-40"
+              >
+                ← Prev
+              </button>
+              <p className="font-semibold text-navy">
+                Page {page} / {totalPages}
+              </p>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="rounded-full border border-navy/20 px-4 py-1.5 font-semibold text-navy transition hover:bg-navy/5 disabled:opacity-40"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

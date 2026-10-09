@@ -12,10 +12,10 @@ export default function FotoPage() {
             RACE PHOTOS
           </p>
           <h1 className="font-display mt-2 text-center text-3xl text-navy sm:text-4xl">
-            Find Your Photos
+            Race Day Photos
           </h1>
           <p className="mt-4 text-center text-navy/70">
-            Enter your BIB number to find race-day photos you&apos;re in.
+            Browse all race-day photos, or search by your BIB number to find yours faster.
           </p>
           <div className="mt-10">
             <FotoSearchClient />
