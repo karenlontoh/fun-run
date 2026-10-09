@@ -256,3 +256,29 @@ $$;
 
 alter table charity_registrations enable row level security;
 alter table charity_participants enable row level security;
+
+-- Race-day photo gallery. Photos are watermarked server-side at upload time
+-- (see lib/watermark.ts) and tagged with every BIB number visible in them —
+-- tagging is manual (committee reviews photos after the event), since
+-- automatic BIB detection from race photos is unreliable and costly for a
+-- ~390-runner event. bib_numbers is an array because group shots feature
+-- more than one runner; the GIN index makes "does this array contain X"
+-- lookups fast for the public search-by-BIB page.
+create table if not exists race_photos (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  storage_path text not null,
+  bib_numbers integer[] not null default '{}'
+);
+
+create index if not exists race_photos_bib_numbers_idx on race_photos using gin (bib_numbers);
+
+-- Public bucket (unlike payment-proofs): race photos are meant to be freely
+-- viewed/downloaded by anyone searching their BIB number, and every photo is
+-- watermarked before it's ever written here, so there's nothing sensitive to
+-- gate behind a signed URL.
+insert into storage.buckets (id, name, public)
+values ('race-photos', 'race-photos', true)
+on conflict (id) do nothing;
+
+alter table race_photos enable row level security;

@@ -114,3 +114,10 @@ export type CharityParticipant = {
   gender: Gender;
   institution: string;
 };
+
+export type RacePhoto = {
+  id: string;
+  created_at: string;
+  storage_path: string;
+  bib_numbers: number[];
+};

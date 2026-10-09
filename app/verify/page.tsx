@@ -124,6 +124,12 @@ export default async function VerifyIndexPage() {
               >
                 Fun Walk Admin
               </Link>
+              <Link
+                href="/verify/race-photos"
+                className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
+              >
+                Race Photos
+              </Link>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- this is a file download, not page navigation */}
               <a
                 href="/api/registrations/export"

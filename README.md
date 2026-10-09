@@ -29,6 +29,11 @@ lewat iframe.
   status check-in, total bayar, dan link langsung ke bukti pembayaran tiap pendaftaran. Sama
   seperti `/verify/[id]`, halaman ini terkunci passcode dan bisa langsung di-share link-nya ke
   panitia lain.
+- **Race Photos** (`/verify/race-photos` untuk panitia, `/foto` untuk publik) — panitia upload
+  foto hasil jepretan fotografer secara massal; tiap foto otomatis diberi watermark logo dan
+  di-scan pakai Gemini buat baca nomor BIB-nya, lalu dicocokkan ke peserta yang beneran terdaftar.
+  Peserta tinggal masukin nomor BIB-nya di `/foto` buat nemuin foto-foto mereka. Foto yang
+  nomor/kategorinya gak kebaca jelas otomatis ditandai "needs review" buat di-tag manual.
 
 ## Setup
 
@@ -56,6 +61,17 @@ lewat iframe.
 
 Kalau `RESEND_API_KEY` belum diisi, pendaftaran tetap jalan normal — cuma email tidak terkirim
 (PDF tetap bisa diunduh manual dari halaman sukses).
+
+### 2b. Buat API key Google AI Studio (untuk deteksi BIB otomatis di Race Photos)
+
+1. Buka [aistudio.google.com/apikey](https://aistudio.google.com/apikey), klik **Create API key**.
+2. Salin key-nya ke `GEMINI_API_KEY`.
+
+Dipakai di halaman admin `/verify/race-photos`: tiap foto yang di-upload otomatis di-scan buat
+baca nomor BIB-nya (lihat [`lib/bib-detection.ts`](lib/bib-detection.ts)), jadi peserta bisa cari
+foto mereka sendiri di `/foto` tanpa panitia harus nge-tag manual satu-satu. Kalau
+`GEMINI_API_KEY` belum diisi, upload foto tetap jalan (watermark tetap kepasang) — cuma tidak
+ada tag BIB otomatis, jadi semua foto masuk status "needs review" untuk ditag manual.
 
 ### 3. Set passcode untuk panitia
 
