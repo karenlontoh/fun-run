@@ -9,8 +9,14 @@ import type { RacePhoto } from "@/lib/types";
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_FILES_PER_UPLOAD = 20;
+const UPLOAD_CONCURRENCY = 5;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const PAGE_SIZE = 50;
+
+// Processing photos one at a time (each one waiting on a Gemini API call)
+// was unusably slow for a real batch — this gives the function more
+// headroom than the 10s default, on top of the concurrency below.
+export const maxDuration = 60;
 
 // Public: browse the gallery (paginated), optionally filtered by BIB number.
 export async function GET(request: Request) {
@@ -80,9 +86,9 @@ export async function POST(request: Request) {
     }
   }
 
-  const results: { id: string; bib_numbers: number[]; detection_failed: boolean }[] = [];
+  type UploadResult = { id: string; bib_numbers: number[]; detection_failed: boolean };
 
-  for (const file of files) {
+  async function processFile(file: File): Promise<UploadResult | null> {
     const originalBuffer = Buffer.from(await file.arrayBuffer());
 
     let bibNumbers: number[] = [];
@@ -101,7 +107,7 @@ export async function POST(request: Request) {
     const { error: uploadError } = await uploadRacePhoto(storagePath, watermarked, "image/jpeg");
     if (uploadError) {
       console.error("uploadRacePhoto failed", uploadError);
-      continue;
+      return null;
     }
 
     const { error: insertError } = await supabaseServer.from("race_photos").insert({
@@ -111,10 +117,22 @@ export async function POST(request: Request) {
     });
     if (insertError) {
       console.error("race_photos insert failed", insertError);
-      continue;
+      return null;
     }
 
-    results.push({ id, bib_numbers: bibNumbers, detection_failed: detectionFailed });
+    return { id, bib_numbers: bibNumbers, detection_failed: detectionFailed };
+  }
+
+  // Processed in small concurrent batches rather than one giant Promise.all
+  // (to stay polite to Gemini's rate limits) or one at a time (which made a
+  // 20-photo batch take minutes — each photo waits on its own Gemini call).
+  const results: UploadResult[] = [];
+  for (let i = 0; i < files.length; i += UPLOAD_CONCURRENCY) {
+    const chunk = files.slice(i, i + UPLOAD_CONCURRENCY);
+    const chunkResults = await Promise.all(chunk.map(processFile));
+    for (const r of chunkResults) {
+      if (r) results.push(r);
+    }
   }
 
   return NextResponse.json({ uploaded: results }, { status: 201 });

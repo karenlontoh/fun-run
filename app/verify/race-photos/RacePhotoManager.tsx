@@ -6,6 +6,13 @@ import type { RacePhoto } from "@/lib/types";
 
 type Row = { photo: RacePhoto; url: string };
 
+// Matches the server's own concurrency (see UPLOAD_CONCURRENCY in
+// app/api/race-photos/route.ts) — sending the whole selection in one
+// request left the admin staring at a single spinner for minutes with no
+// sense of progress, so the client splits it into batches itself instead
+// and reports progress between each one.
+const CLIENT_BATCH_SIZE = 5;
+
 export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
@@ -13,6 +20,7 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSummary, setUploadSummary] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -24,30 +32,45 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
     e.preventDefault();
     if (!files || files.length === 0) return;
 
+    const allFiles = Array.from(files);
     setUploading(true);
     setUploadError(null);
     setUploadSummary(null);
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((f) => formData.append("photos", f));
+    setProgress({ done: 0, total: allFiles.length });
 
-      const res = await fetch("/api/race-photos", { method: "POST", body: formData });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setUploadError(data?.error ?? "Upload failed. Try again.");
-        return;
+    let uploadedCount = 0;
+    let taggedCount = 0;
+
+    try {
+      for (let i = 0; i < allFiles.length; i += CLIENT_BATCH_SIZE) {
+        const batch = allFiles.slice(i, i + CLIENT_BATCH_SIZE);
+        const formData = new FormData();
+        batch.forEach((f) => formData.append("photos", f));
+
+        const res = await fetch("/api/race-photos", { method: "POST", body: formData });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          setUploadError(data?.error ?? "Upload failed partway through. Already-uploaded photos were kept.");
+          break;
+        }
+        const uploaded = (data?.uploaded ?? []) as { bib_numbers: number[] }[];
+        uploadedCount += uploaded.length;
+        taggedCount += uploaded.filter((u) => u.bib_numbers.length > 0).length;
+        setProgress({ done: Math.min(i + batch.length, allFiles.length), total: allFiles.length });
       }
-      const uploaded = (data?.uploaded ?? []) as { bib_numbers: number[] }[];
-      const tagged = uploaded.filter((u) => u.bib_numbers.length > 0).length;
-      setUploadSummary(
-        `${uploaded.length} photo(s) uploaded — ${tagged} auto-tagged, ${uploaded.length - tagged} need review.`
-      );
+
+      if (uploadedCount > 0) {
+        setUploadSummary(
+          `${uploadedCount} photo(s) uploaded — ${taggedCount} auto-tagged, ${uploadedCount - taggedCount} need review.`
+        );
+      }
       setFiles(null);
       router.refresh();
     } catch {
-      setUploadError("Network error. Try again.");
+      setUploadError("Network error partway through. Already-uploaded photos were kept.");
     } finally {
       setUploading(false);
+      setProgress(null);
     }
   }
 
@@ -128,6 +151,19 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
         />
         {uploadError && <p className="mt-3 text-sm font-semibold text-orange-dark">{uploadError}</p>}
         {uploadSummary && <p className="mt-3 text-sm font-semibold text-lime-dark">{uploadSummary}</p>}
+        {progress && (
+          <div className="mt-3">
+            <p className="text-sm font-semibold text-navy">
+              Processing {progress.done} / {progress.total} photos...
+            </p>
+            <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-navy/10">
+              <div
+                className="h-full rounded-full bg-orange transition-all duration-300"
+                style={{ width: `${(progress.done / progress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
         <button
           type="submit"
           disabled={uploading || !files || files.length === 0}
