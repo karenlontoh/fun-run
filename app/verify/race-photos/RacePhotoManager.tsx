@@ -13,6 +13,9 @@ type Row = { photo: RacePhoto; url: string };
 // and reports progress between each one.
 const CLIENT_BATCH_SIZE = 5;
 
+// Matches the server's RETAG_CONCURRENCY (see app/api/race-photos/retag/route.ts).
+const RETAG_BATCH_SIZE = 5;
+
 // Real camera photos run 10-11MB each — 5 of those in one multipart request
 // blows past Vercel's ~4.5MB request body limit (confirmed in production:
 // a request with just 2 original photos came back 413
@@ -73,6 +76,10 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
   const [onlyUntagged, setOnlyUntagged] = useState(false);
+  const [retagging, setRetagging] = useState(false);
+  const [retagProgress, setRetagProgress] = useState<{ done: number; total: number } | null>(null);
+  const [retagError, setRetagError] = useState<string | null>(null);
+  const [retagSummary, setRetagSummary] = useState<string | null>(null);
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
@@ -120,6 +127,57 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
     } finally {
       setUploading(false);
       setProgress(null);
+    }
+  }
+
+  async function handleRetagUntagged() {
+    const untaggedIds = rows.filter((r) => r.photo.bib_numbers.length === 0).map((r) => r.photo.id);
+    if (untaggedIds.length === 0) return;
+
+    setRetagging(true);
+    setRetagError(null);
+    setRetagSummary(null);
+    setRetagProgress({ done: 0, total: untaggedIds.length });
+
+    let newlyTagged = 0;
+
+    try {
+      for (let i = 0; i < untaggedIds.length; i += RETAG_BATCH_SIZE) {
+        const batch = untaggedIds.slice(i, i + RETAG_BATCH_SIZE);
+        const res = await fetch("/api/race-photos/retag", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: batch }),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          setRetagError(data?.error ?? "Retry failed partway through. Already-retried photos were kept.");
+          break;
+        }
+
+        const results = (data?.results ?? []) as { id: string; bib_numbers: number[]; changed: boolean }[];
+        const changedById = new Map(results.filter((r) => r.changed).map((r) => [r.id, r.bib_numbers]));
+        if (changedById.size > 0) {
+          newlyTagged += changedById.size;
+          setRows((prev) =>
+            prev.map((r) =>
+              changedById.has(r.photo.id)
+                ? { ...r, photo: { ...r.photo, bib_numbers: changedById.get(r.photo.id)! } }
+                : r
+            )
+          );
+        }
+        setRetagProgress({ done: Math.min(i + batch.length, untaggedIds.length), total: untaggedIds.length });
+      }
+
+      setRetagSummary(
+        `${newlyTagged} of ${untaggedIds.length} photo(s) newly tagged.`
+      );
+    } catch {
+      setRetagError("Network error partway through. Already-retried photos were kept.");
+    } finally {
+      setRetagging(false);
+      setRetagProgress(null);
     }
   }
 
@@ -182,6 +240,7 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
     }
   }
 
+  const untaggedCount = rows.filter((r) => r.photo.bib_numbers.length === 0).length;
   const visibleRows = onlyUntagged ? rows.filter((r) => r.photo.bib_numbers.length === 0) : rows;
 
   return (
@@ -222,7 +281,7 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
         </button>
       </form>
 
-      <div className="mt-8 flex items-center gap-3">
+      <div className="mt-8 flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm font-semibold text-navy">
           <input
             type="checkbox"
@@ -231,7 +290,32 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
           />
           Only show photos needing review
         </label>
+        {untaggedCount > 0 && (
+          <button
+            type="button"
+            onClick={handleRetagUntagged}
+            disabled={retagging}
+            className="rounded-full border border-orange px-4 py-1.5 text-xs font-semibold text-orange-dark transition hover:bg-orange/10 disabled:opacity-60"
+          >
+            {retagging ? "Retrying..." : `Retry Untagged (${untaggedCount})`}
+          </button>
+        )}
       </div>
+      {retagProgress && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-navy">
+            Retrying {retagProgress.done} / {retagProgress.total} photos...
+          </p>
+          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-navy/10">
+            <div
+              className="h-full rounded-full bg-orange transition-all duration-300"
+              style={{ width: `${(retagProgress.done / retagProgress.total) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+      {retagError && <p className="mt-3 text-sm font-semibold text-orange-dark">{retagError}</p>}
+      {retagSummary && <p className="mt-3 text-sm font-semibold text-lime-dark">{retagSummary}</p>}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleRows.map((row) => (
