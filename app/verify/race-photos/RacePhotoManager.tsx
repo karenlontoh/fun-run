@@ -13,9 +13,55 @@ type Row = { photo: RacePhoto; url: string };
 // and reports progress between each one.
 const CLIENT_BATCH_SIZE = 5;
 
+// Real camera photos run 10-11MB each — 5 of those in one multipart request
+// blows past Vercel's ~4.5MB request body limit (confirmed in production:
+// a request with just 2 original photos came back 413
+// FUNCTION_PAYLOAD_TOO_LARGE). Downscaling in the browser first keeps a
+// batch of 5 comfortably under that.
+const MAX_DIMENSION = 1600;
+const JPEG_QUALITY = 0.78;
+
+async function compressImage(file: File): Promise<File> {
+  const bitmap = await createImageBitmap(file); // respects EXIF orientation
+  let { width, height } = bitmap;
+  if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+    const scale = MAX_DIMENSION / Math.max(width, height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY)
+  );
+  if (!blob) return file;
+
+  return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+}
+
 export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
+  // initialRows is a prop, not state — useState only reads it on first
+  // mount, so after router.refresh() gives the server component fresh data
+  // (e.g. post-upload), this component would otherwise keep showing the
+  // stale list it mounted with even though the stat cards above it (which
+  // read the server component's data directly) update correctly. Resetting
+  // state during render (React's documented pattern for this, see
+  // https://react.dev/learn/you-might-not-need-an-effect) instead of in a
+  // useEffect avoids an extra render pass.
+  const [prevInitialRows, setPrevInitialRows] = useState(initialRows);
+  if (initialRows !== prevInitialRows) {
+    setPrevInitialRows(initialRows);
+    setRows(initialRows);
+  }
   const [files, setFiles] = useState<FileList | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -44,8 +90,11 @@ export function RacePhotoManager({ initialRows }: { initialRows: Row[] }) {
     try {
       for (let i = 0; i < allFiles.length; i += CLIENT_BATCH_SIZE) {
         const batch = allFiles.slice(i, i + CLIENT_BATCH_SIZE);
+        const compressed = await Promise.all(
+          batch.map((f) => compressImage(f).catch(() => f))
+        );
         const formData = new FormData();
-        batch.forEach((f) => formData.append("photos", f));
+        compressed.forEach((f) => formData.append("photos", f));
 
         const res = await fetch("/api/race-photos", { method: "POST", body: formData });
         const data = await res.json().catch(() => null);
