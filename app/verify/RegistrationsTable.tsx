@@ -27,7 +27,16 @@ const STATUS_CLASSES: Record<PaymentStatus, string> = {
   unverified: "border-red-200 bg-red-100 text-red-700",
 };
 
-export function RegistrationsTable({ rows: initialRows }: { rows: Row[] }) {
+export function RegistrationsTable({
+  rows: initialRows,
+  restricted = false,
+}: {
+  rows: Row[];
+  // True for the race-pack-collection volunteer code: read-only — payment
+  // status shows as a badge instead of an editable dropdown, and there's
+  // no Delete action.
+  restricted?: boolean;
+}) {
   const [rows, setRows] = useState(initialRows);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -179,22 +188,32 @@ export function RegistrationsTable({ rows: initialRows }: { rows: Row[] }) {
               return (
                 <tr key={registration.id}>
                   <td className="px-4 py-3">
-                    <select
-                      value={status}
-                      disabled={pendingIds[registration.id]}
-                      onChange={(e) => updateStatus(registration.id, e.target.value as PaymentStatus)}
-                      className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${STATUS_CLASSES[status]}`}
-                    >
-                      {PAYMENT_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {STATUS_LABEL[s]}
-                        </option>
-                      ))}
-                    </select>
-                    {errorIds[registration.id] && (
-                      <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
-                        {errorIds[registration.id]}
-                      </p>
+                    {restricted ? (
+                      <span
+                        className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_CLASSES[status]}`}
+                      >
+                        {STATUS_LABEL[status]}
+                      </span>
+                    ) : (
+                      <>
+                        <select
+                          value={status}
+                          disabled={pendingIds[registration.id]}
+                          onChange={(e) => updateStatus(registration.id, e.target.value as PaymentStatus)}
+                          className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-50 ${STATUS_CLASSES[status]}`}
+                        >
+                          {PAYMENT_STATUSES.map((s) => (
+                            <option key={s} value={s}>
+                              {STATUS_LABEL[s]}
+                            </option>
+                          ))}
+                        </select>
+                        {errorIds[registration.id] && (
+                          <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
+                            {errorIds[registration.id]}
+                          </p>
+                        )}
+                      </>
                     )}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-navy/60 capitalize">
@@ -252,18 +271,22 @@ export function RegistrationsTable({ rows: initialRows }: { rows: Row[] }) {
                     </Link>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(registration.id, registration.contact_name)}
-                      disabled={deletingIds[registration.id]}
-                      className="font-semibold text-red-600 hover:underline disabled:opacity-50"
-                    >
-                      {deletingIds[registration.id] ? "Deleting..." : "Delete"}
-                    </button>
-                    {errorIds[registration.id] && (
-                      <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
-                        {errorIds[registration.id]}
-                      </p>
+                    {!restricted && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(registration.id, registration.contact_name)}
+                          disabled={deletingIds[registration.id]}
+                          className="font-semibold text-red-600 hover:underline disabled:opacity-50"
+                        >
+                          {deletingIds[registration.id] ? "Deleting..." : "Delete"}
+                        </button>
+                        {errorIds[registration.id] && (
+                          <p className="mt-1 max-w-[160px] whitespace-normal text-xs font-semibold text-orange-dark">
+                            {errorIds[registration.id]}
+                          </p>
+                        )}
+                      </>
                     )}
                   </td>
                 </tr>

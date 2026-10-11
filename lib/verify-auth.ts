@@ -39,12 +39,17 @@ export async function isValidVerifyAuthCookie(cookieValue: string | undefined): 
   return (await getVerifyRole(cookieValue)) !== null;
 }
 
-// The volunteer (race-pack collection) code only ever needs to open a single
-// participant/registration's page after scanning their QR code — never the
-// dashboard, exports, or any other committee tooling under /verify.
+// The volunteer (race-pack collection) code can browse the read-only
+// registrations dashboard (to look someone up, view their PDF) and open a
+// single participant/registration's page after scanning their QR code —
+// but never add/edit anything, nor reach exports or any other committee
+// tooling under /verify. Write actions are blocked separately, per API
+// route (see getVerifyRole call sites) — this only gates which *pages*
+// load.
 const RESTRICTED_VERIFY_SEGMENTS = new Set(["race-photos", "fun-walk", "tambah-peserta"]);
 
 export function isVolunteerAllowedPath(pathname: string): boolean {
+  if (pathname === "/verify") return true;
   const match = pathname.match(/^\/verify\/([^/]+)$/);
   if (!match) return false;
   return !RESTRICTED_VERIFY_SEGMENTS.has(match[1]);

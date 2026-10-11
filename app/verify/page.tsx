@@ -1,15 +1,24 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { RegistrationsTable } from "@/app/verify/RegistrationsTable";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getPaymentProofSignedUrl } from "@/lib/storage";
 import { formatIDR } from "@/lib/pricing";
+import { VERIFY_AUTH_COOKIE, getVerifyRole } from "@/lib/verify-auth";
 import { AGE_GROUPS, CATEGORIES, jerseySizesFor, type Participant, type Registration } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function VerifyIndexPage() {
+  const cookieStore = await cookies();
+  const role = await getVerifyRole(cookieStore.get(VERIFY_AUTH_COOKIE)?.value);
+  // The race-pack-collection volunteer code can browse this dashboard
+  // read-only (look someone up, view their PDF) but can't add, edit, or
+  // reach any other committee tooling.
+  const restricted = role === "volunteer";
+
   const { data: registrations } = await supabaseServer
     .from("registrations")
     .select("*")
@@ -112,31 +121,35 @@ export default async function VerifyIndexPage() {
               >
                 Race Day Check-In Page
               </Link>
-              <Link
-                href="/verify/tambah-peserta"
-                className="rounded-full bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
-              >
-                + Add Registration
-              </Link>
-              <Link
-                href="/verify/fun-walk"
-                className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
-              >
-                Fun Walk Admin
-              </Link>
-              <Link
-                href="/verify/race-photos"
-                className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
-              >
-                Race Photos
-              </Link>
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- this is a file download, not page navigation */}
-              <a
-                href="/api/registrations/export"
-                className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
-              >
-                Export XLSX
-              </a>
+              {!restricted && (
+                <>
+                  <Link
+                    href="/verify/tambah-peserta"
+                    className="rounded-full bg-orange px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-orange-dark"
+                  >
+                    + Add Registration
+                  </Link>
+                  <Link
+                    href="/verify/fun-walk"
+                    className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
+                  >
+                    Fun Walk Admin
+                  </Link>
+                  <Link
+                    href="/verify/race-photos"
+                    className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
+                  >
+                    Race Photos
+                  </Link>
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- this is a file download, not page navigation */}
+                  <a
+                    href="/api/registrations/export"
+                    className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
+                  >
+                    Export XLSX
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
@@ -241,7 +254,7 @@ export default async function VerifyIndexPage() {
             </div>
           </details>
 
-          <RegistrationsTable rows={rows} />
+          <RegistrationsTable rows={rows} restricted={restricted} />
         </div>
       </main>
       <Footer />
