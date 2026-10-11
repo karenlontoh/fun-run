@@ -21,7 +21,7 @@ export default async function VerifyLoginPage({
           </p>
 
           <form method="POST" action="/api/verify-login" className="mt-8 space-y-4">
-            <input type="hidden" name="next" value={next ?? "/"} />
+            <input type="hidden" name="next" value={next ?? "/verify"} />
             <label className="block">
               <span className="text-sm font-semibold text-navy">Access Code</span>
               <input
@@ -33,7 +33,13 @@ export default async function VerifyLoginPage({
                 placeholder="Enter access code"
               />
             </label>
-            {error && (
+            {error === "restricted" && (
+              <p className="rounded-lg bg-orange/10 px-4 py-3 text-sm font-semibold text-orange-dark">
+                This code only opens a scanned participant&apos;s race pack page. Scan a
+                participant&apos;s QR code to continue.
+              </p>
+            )}
+            {error && error !== "restricted" && (
               <p className="rounded-lg bg-orange/10 px-4 py-3 text-sm font-semibold text-orange-dark">
                 Incorrect access code. Please try again.
               </p>

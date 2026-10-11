@@ -15,7 +15,15 @@ import {
 
 const AGE_GROUP_LABEL: Record<AgeGroup, string> = { anak: "Anak", dewasa: "Dewasa" };
 
-export function ParticipantEditor({ participant }: { participant: Participant }) {
+export function ParticipantEditor({
+  participant,
+  restricted = false,
+}: {
+  participant: Participant;
+  // True for the race-pack-collection volunteer code: only the "Collect
+  // Race Pack" action is shown — no editing, no attendance toggle.
+  restricted?: boolean;
+}) {
   const [current, setCurrent] = useState(participant);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -186,13 +194,15 @@ export function ParticipantEditor({ participant }: { participant: Participant })
             <p className="text-xs text-navy/50">BIB</p>
             <p className="font-display text-2xl text-orange">{current.bib_number}</p>
           </div>
-          <button
-            type="button"
-            onClick={startEditing}
-            className="text-sm font-semibold text-navy/50 hover:text-orange"
-          >
-            Edit
-          </button>
+          {!restricted && (
+            <button
+              type="button"
+              onClick={startEditing}
+              className="text-sm font-semibold text-navy/50 hover:text-orange"
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-navy/10 pt-3">
@@ -201,11 +211,13 @@ export function ParticipantEditor({ participant }: { participant: Participant })
           initialCheckedIn={current.checked_in}
           initialCheckedInAt={current.checked_in_at}
         />
-        <AttendanceStatus
-          participantId={current.id}
-          initialAttended={current.attended}
-          initialAttendedAt={current.attended_at}
-        />
+        {!restricted && (
+          <AttendanceStatus
+            participantId={current.id}
+            initialAttended={current.attended}
+            initialAttendedAt={current.attended_at}
+          />
+        )}
       </div>
     </div>
   );

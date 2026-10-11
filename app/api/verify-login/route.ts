@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { VERIFY_AUTH_COOKIE, hashAccessCode } from "@/lib/verify-auth";
+import { VERIFY_AUTH_COOKIE, hashVerifyCookie, isVolunteerAllowedPath, type VerifyRole } from "@/lib/verify-auth";
 
 const MAX_AGE_SECONDS = 60 * 60 * 12; // 12 hours — long enough to cover one race day
 
 function safeNextPath(next: FormDataEntryValue | null): string {
   const value = typeof next === "string" ? next : "";
-  return value.startsWith("/verify") ? value : "/";
+  return value.startsWith("/verify") ? value : "/verify";
 }
 
 export async function POST(request: Request) {
@@ -13,16 +13,30 @@ export async function POST(request: Request) {
   const code = String(formData.get("code") ?? "");
   const next = safeNextPath(formData.get("next"));
 
-  const accessCode = process.env.VERIFY_ACCESS_CODE;
-  if (!accessCode || code !== accessCode) {
+  let role: VerifyRole | null = null;
+  if (process.env.VERIFY_ACCESS_CODE && code === process.env.VERIFY_ACCESS_CODE) {
+    role = "admin";
+  } else if (process.env.VERIFY_VOLUNTEER_ACCESS_CODE && code === process.env.VERIFY_VOLUNTEER_ACCESS_CODE) {
+    role = "volunteer";
+  }
+
+  if (!role) {
     const loginUrl = new URL("/verify-login", request.url);
     loginUrl.searchParams.set("next", next);
     loginUrl.searchParams.set("error", "1");
     return NextResponse.redirect(loginUrl, { status: 303 });
   }
 
-  const response = NextResponse.redirect(new URL(next, request.url), { status: 303 });
-  response.cookies.set(VERIFY_AUTH_COOKIE, await hashAccessCode(accessCode), {
+  // The volunteer code only opens a scanned participant's page — if it was
+  // entered while trying to reach anything else under /verify, there's
+  // nowhere valid for it to go.
+  const redirectUrl =
+    role === "volunteer" && !isVolunteerAllowedPath(next)
+      ? new URL("/verify-login?error=restricted", request.url)
+      : new URL(next, request.url);
+
+  const response = NextResponse.redirect(redirectUrl, { status: 303 });
+  response.cookies.set(VERIFY_AUTH_COOKIE, await hashVerifyCookie(role, code), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

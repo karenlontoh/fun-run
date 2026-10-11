@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { VERIFY_AUTH_COOKIE, isValidVerifyAuthCookie } from "@/lib/verify-auth";
+import { VERIFY_AUTH_COOKIE, getVerifyRole } from "@/lib/verify-auth";
 import { supabaseServer } from "@/lib/supabase-server";
 import { uploadPaymentProof } from "@/lib/storage";
 import { PAYMENT_METHODS, PAYMENT_STATUSES, type PaymentMethod, type PaymentStatus } from "@/lib/types";
@@ -15,8 +15,8 @@ const ALLOWED_FILE_TYPES: Record<string, string> = {
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const cookieStore = await cookies();
-  const authorized = await isValidVerifyAuthCookie(cookieStore.get(VERIFY_AUTH_COOKIE)?.value);
-  if (!authorized) {
+  const role = await getVerifyRole(cookieStore.get(VERIFY_AUTH_COOKIE)?.value);
+  if (role !== "admin") {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { VERIFY_AUTH_COOKIE, isValidVerifyAuthCookie } from "@/lib/verify-auth";
+import { VERIFY_AUTH_COOKIE, getVerifyRole } from "@/lib/verify-auth";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getRacePhotoPublicUrl } from "@/lib/storage";
 import { detectBibNumbersInImage } from "@/lib/bib-detection";
@@ -16,8 +16,8 @@ export const maxDuration = 60;
 // rate-limited by too many concurrent requests during a big batch upload.
 export async function POST(request: Request) {
   const cookieStore = await cookies();
-  const authorized = await isValidVerifyAuthCookie(cookieStore.get(VERIFY_AUTH_COOKIE)?.value);
-  if (!authorized) {
+  const role = await getVerifyRole(cookieStore.get(VERIFY_AUTH_COOKIE)?.value);
+  if (role !== "admin") {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
