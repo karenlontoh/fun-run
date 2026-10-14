@@ -92,13 +92,19 @@ export default async function VerifyIndexPage() {
   const jerseyBreakdown = CATEGORIES.map((category) => ({
     category,
     rows: AGE_GROUPS.flatMap((ageGroup) =>
-      jerseySizesFor(ageGroup).map((size) => ({
-        ageGroup,
-        size,
-        count: verifiedParticipants.filter(
+      jerseySizesFor(ageGroup).map((size) => {
+        const sizeParticipants = verifiedParticipants.filter(
           (p) => p.category === category && p.age_group === ageGroup && p.jersey_size === size
-        ).length,
-      }))
+        );
+        const collected = sizeParticipants.filter((p) => p.checked_in).length;
+        return {
+          ageGroup,
+          size,
+          count: sizeParticipants.length,
+          collected,
+          remaining: sizeParticipants.length - collected,
+        };
+      })
     ),
   }));
 
@@ -230,15 +236,19 @@ export default async function VerifyIndexPage() {
                       <tr className="text-xs uppercase tracking-wide text-navy/50">
                         <th className="py-1.5 pr-3">Age Group</th>
                         <th className="py-1.5 pr-3">Size</th>
-                        <th className="py-1.5">Count</th>
+                        <th className="py-1.5 pr-3">Count</th>
+                        <th className="py-1.5 pr-3">Collected</th>
+                        <th className="py-1.5">Remaining</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-navy/10">
-                      {sizeRows.map(({ ageGroup, size, count }) => (
+                      {sizeRows.map(({ ageGroup, size, count, collected, remaining }) => (
                         <tr key={`${ageGroup}-${size}`}>
                           <td className="py-1.5 pr-3 text-navy/70">{AGE_GROUP_LABEL[ageGroup]}</td>
                           <td className="py-1.5 pr-3 font-semibold text-navy">{size}</td>
-                          <td className="py-1.5 text-navy/70">{count}</td>
+                          <td className="py-1.5 pr-3 text-navy/70">{count}</td>
+                          <td className="py-1.5 pr-3 text-lime-dark">{collected}</td>
+                          <td className="py-1.5 text-orange-dark">{remaining}</td>
                         </tr>
                       ))}
                     </tbody>
