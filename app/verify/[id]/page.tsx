@@ -163,14 +163,12 @@ export default async function VerifyPage({
             )
           )}
 
-          {!restricted && (
-            <Link
-              href="/verify"
-              className="mt-10 inline-block font-display text-lg tracking-wide text-navy underline decoration-orange decoration-4 underline-offset-4"
-            >
-              ← BACK TO ALL REGISTRATIONS
-            </Link>
-          )}
+          <Link
+            href="/verify"
+            className="mt-10 inline-block font-display text-lg tracking-wide text-navy underline decoration-orange decoration-4 underline-offset-4"
+          >
+            ← BACK TO ALL REGISTRATIONS
+          </Link>
         </div>
       </main>
       <Footer />
