@@ -48,21 +48,11 @@ export default async function VerifyIndexPage() {
   const totalParticipants = participants?.length ?? 0;
   const totalCollected = (registrations ?? []).reduce((sum, r) => sum + r.total_amount, 0);
 
-  const registrationIdsByStatus = (status: string) =>
-    new Set((registrations ?? []).filter((r) => r.payment_status === status).map((r) => r.id));
-  const pendingRegistrationIds = registrationIdsByStatus("pending");
-  const verifiedRegistrationIds = registrationIdsByStatus("verified");
-  const unverifiedRegistrationIds = registrationIdsByStatus("unverified");
-
-  const participantsByStatusIds = (ids: Set<string>) =>
-    (participants ?? []).filter((p) => ids.has(p.registration_id));
-  const pendingParticipants = participantsByStatusIds(pendingRegistrationIds);
-  const verifiedParticipants = participantsByStatusIds(verifiedRegistrationIds);
-  const unverifiedParticipants = participantsByStatusIds(unverifiedRegistrationIds);
-
-  const totalPendingParticipants = pendingParticipants.length;
+  const verifiedRegistrationIds = new Set(
+    (registrations ?? []).filter((r) => r.payment_status === "verified").map((r) => r.id)
+  );
+  const verifiedParticipants = (participants ?? []).filter((p) => verifiedRegistrationIds.has(p.registration_id));
   const totalVerifiedParticipants = verifiedParticipants.length;
-  const totalUnverifiedParticipants = unverifiedParticipants.length;
 
   // Race pack collection and race-day attendance are only meaningful against
   // verified (paid) participants.
@@ -78,6 +68,14 @@ export default async function VerifyIndexPage() {
     { label: "5K — Male", count: countBy("5K", "L") },
     { label: "5K — Female", count: countBy("5K", "P") },
   ];
+
+  // Race pack collection only makes sense against verified (paid)
+  // participants, same denominator as the category/gender breakdown above.
+  const racePackByCategory = CATEGORIES.map((category) => ({
+    category,
+    collected: verifiedParticipants.filter((p) => p.category === category && p.checked_in).length,
+    total: verifiedParticipants.filter((p) => p.category === category).length,
+  }));
 
   const attendedParticipants = verifiedParticipants.filter((p) => p.attended);
   const countAttendedBy = (category: string, gender: string) =>
@@ -181,21 +179,17 @@ export default async function VerifyIndexPage() {
           </div>
 
           <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-navy/50">
-            Participants by Payment Status
+            Race Pack Collected by Category
           </p>
-          <div className="mt-2 grid grid-cols-3 gap-4">
-            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
-              <p className="text-xs text-navy/50">Need Verify</p>
-              <p className="font-display text-2xl text-navy/60">{totalPendingParticipants}</p>
-            </div>
-            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
-              <p className="text-xs text-navy/50">Unverified</p>
-              <p className="font-display text-2xl text-orange">{totalUnverifiedParticipants}</p>
-            </div>
-            <div className="rounded-xl border border-navy/10 bg-white px-5 py-4">
-              <p className="text-xs text-navy/50">Verified</p>
-              <p className="font-display text-2xl text-lime-dark">{totalVerifiedParticipants}</p>
-            </div>
+          <div className="mt-2 grid grid-cols-2 gap-4">
+            {racePackByCategory.map(({ category, collected, total }) => (
+              <div key={category} className="rounded-xl border border-navy/10 bg-white px-5 py-4">
+                <p className="text-xs text-navy/50">{category}</p>
+                <p className="font-display text-2xl text-navy">
+                  {collected}/{total}
+                </p>
+              </div>
+            ))}
           </div>
 
           <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-navy/50">

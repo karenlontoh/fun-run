@@ -53,12 +53,21 @@ export default async function FunWalkAdminPage() {
                 {CHARITY_WALK.name} Registrations
               </h1>
             </div>
-            <Link
-              href="/verify"
-              className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
-            >
-              ← Back to Fun Run Dashboard
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- this is a file download, not page navigation */}
+              <a
+                href="/api/charity/registrations/export"
+                className="rounded-full border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-cream"
+              >
+                Export XLSX
+              </a>
+              <Link
+                href="/verify"
+                className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-navy-light"
+              >
+                ← Back to Fun Run Dashboard
+              </Link>
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">

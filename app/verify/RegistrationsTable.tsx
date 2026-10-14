@@ -12,6 +12,7 @@ type Row = {
 };
 
 type SortOption = "newest" | PaymentStatus;
+type RacePackFilter = "all" | "collected" | "not_collected";
 
 const PAGE_SIZE = 20;
 
@@ -40,6 +41,7 @@ export function RegistrationsTable({
   const [rows, setRows] = useState(initialRows);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [racePackFilter, setRacePackFilter] = useState<RacePackFilter>("all");
   const [statusMap, setStatusMap] = useState<Record<string, PaymentStatus>>(() =>
     Object.fromEntries(initialRows.map((r) => [r.registration.id, r.registration.payment_status]))
   );
@@ -47,7 +49,7 @@ export function RegistrationsTable({
   const [errorIds, setErrorIds] = useState<Record<string, string>>({});
   const [deletingIds, setDeletingIds] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
-  const [lastFilters, setLastFilters] = useState({ search, sortBy });
+  const [lastFilters, setLastFilters] = useState({ search, sortBy, racePackFilter });
 
   async function handleDelete(id: string, contactName: string) {
     if (!window.confirm(`Delete the registration for "${contactName}"? This cannot be undone.`)) {
@@ -112,13 +114,23 @@ export function RegistrationsTable({
 
   const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return rows;
-    return rows.filter(
-      ({ registration, participants }) =>
-        registration.id.toLowerCase().includes(query) ||
-        participants.some((p) => p.full_name.toLowerCase().includes(query))
-    );
-  }, [rows, search]);
+    return rows.filter(({ registration, participants }) => {
+      if (query) {
+        const matches =
+          registration.id.toLowerCase().includes(query) ||
+          participants.some((p) => p.full_name.toLowerCase().includes(query));
+        if (!matches) return false;
+      }
+      if (racePackFilter !== "all") {
+        // A group counts as collected only once every participant in it has
+        // picked up their race pack — matches the "X/Y" shown in the table.
+        const fullyCollected = participants.length > 0 && participants.every((p) => p.checked_in);
+        if (racePackFilter === "collected" && !fullyCollected) return false;
+        if (racePackFilter === "not_collected" && fullyCollected) return false;
+      }
+      return true;
+    });
+  }, [rows, search, racePackFilter]);
 
   const sortedRows = useMemo(() => {
     if (sortBy === "newest") return filteredRows;
@@ -132,8 +144,12 @@ export function RegistrationsTable({
   }, [filteredRows, sortBy, statusMap]);
 
   let effectivePage = page;
-  if (lastFilters.search !== search || lastFilters.sortBy !== sortBy) {
-    setLastFilters({ search, sortBy });
+  if (
+    lastFilters.search !== search ||
+    lastFilters.sortBy !== sortBy ||
+    lastFilters.racePackFilter !== racePackFilter
+  ) {
+    setLastFilters({ search, sortBy, racePackFilter });
     setPage(1);
     effectivePage = 1;
   }
@@ -161,6 +177,15 @@ export function RegistrationsTable({
           <option value="pending">Sort: Need Verify First</option>
           <option value="verified">Sort: Verified First</option>
           <option value="unverified">Sort: Unverified First</option>
+        </select>
+        <select
+          value={racePackFilter}
+          onChange={(e) => setRacePackFilter(e.target.value as RacePackFilter)}
+          className="rounded-xl border border-navy/10 bg-white px-4 py-2.5 text-sm text-navy focus:border-orange focus:outline-none"
+        >
+          <option value="all">Race Pack: All</option>
+          <option value="collected">Race Pack: Collected</option>
+          <option value="not_collected">Race Pack: Not Yet Collected</option>
         </select>
       </div>
 
