@@ -11,19 +11,30 @@ type GeminiResponse = {
 
 type BibTag = { number: string; category: "2.5K" | "5K" | null };
 
+// Gemini's flash models can sit in a sustained "high demand" window lasting
+// well past a few seconds — sometimes returning a quick 503, but sometimes
+// just hanging on the request for a minute or more before finally
+// responding. Without a per-attempt timeout, one slow call blocks the whole
+// serverless function (60s budget) until Vercel kills it, taking down every
+// other photo in that same concurrent batch along with it — not just the
+// slow one. Capping each attempt and retrying lets a stuck call fail fast
+// instead. Each photo is processed in small concurrent batches (5 at a
+// time, both on upload and retry — see UPLOAD_CONCURRENCY/RETAG_CONCURRENCY),
+// so this worst-case budget per photo still leaves headroom in the 60s cap.
 const MAX_RETRIES = 3;
 const RETRY_STATUS_CODES = new Set([429, 500, 503]);
+const REQUEST_TIMEOUT_MS = 10_000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// The printed race bib only shows a 3-digit number next to a small category
-// badge ("2.5K" or "5K") — the real BIB number stored in the DB is that
-// category's leading digit (2 or 5) plus the 3 printed digits (e.g. badge
-// "5K" + printed "008" -> BIB 5008). So Gemini needs to read both the
-// number AND the category badge, not just the number, or we can't
-// reconstruct the real BIB number.
+// Printed bibs show a number next to a small category badge ("2.5K" or
+// "5K"). Most show the full BIB number directly (e.g. "2003"), but some only
+// show the category's leading digit (2 or 5) implied by the badge plus a
+// 3-digit suffix (e.g. badge "5K" + printed "008" -> BIB 5008) — so Gemini
+// needs to read both the number AND the category badge, not just the
+// number, and reconstructCandidates() below tries both readings.
 async function detectBibTagsInImage(imageBuffer: Buffer): Promise<BibTag[]> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -35,7 +46,7 @@ async function detectBibTagsInImage(imageBuffer: Buffer): Promise<BibTag[]> {
       {
         parts: [
           {
-            text: "This is a photo from a charity fun run / community race. Every runner wears a printed race bib on their chest: a small category badge reading either \"2.5K\" or \"5K\", next to a bold 3-digit number (e.g. \"008\", \"035\"). Find every runner's bib in the photo and report the 3-digit number plus its category badge. Ignore any other numbers in the scene (sponsor banners, timestamps, street signs, shirt brands, etc). If a number or the category badge is partially visible, blurry, or at an angle, do your best to read it. If you can read the number but genuinely cannot tell the category badge, still report the number with category null. If you can't confidently read the number at all, leave that bib out entirely.",
+            text: "This is a photo related to a charity fun run / community race. Each race bib shows a bold printed number (3 or 4 digits, e.g. \"008\", \"2003\", \"5047\") next to a small category badge reading either \"2.5K\" or \"5K\". A bib might be worn by a runner on their chest, held up, or simply lying on a table or stacked with other bibs — report it in any of these cases, not just when someone is wearing it. Find every bib visible in the photo and report its printed number exactly as shown, digit for digit (do not pad, trim, or guess missing digits), plus its category badge. Ignore any other numbers in the scene (sponsor banners, timestamps, street signs, shirt brands, phone numbers, etc). If a number or the category badge is partially visible, blurry, or at an angle, do your best to read it. If you can read the number but genuinely cannot tell the category badge, still report the number with category null. If you can't confidently read the number at all, leave that bib out entirely.",
           },
           { inline_data: { mime_type: "image/jpeg", data: imageBuffer.toString("base64") } },
         ],
@@ -70,14 +81,21 @@ async function detectBibTagsInImage(imageBuffer: Buffer): Promise<BibTag[]> {
   let res: Response | undefined;
   let lastError: unknown;
   // Gemini's flash models occasionally return a transient 503 ("high
-  // demand") or 429 (rate limit), or the request just times out at the
-  // network level — retrying with backoff clears most of these, which
-  // matters a lot when uploading photos by the hundreds.
+  // demand") or 429 (rate limit), or just hang past REQUEST_TIMEOUT_MS —
+  // retrying with backoff clears most of these, which matters a lot when
+  // uploading photos by the hundreds.
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const timeoutController = new AbortController();
+    const timeout = setTimeout(() => timeoutController.abort(), REQUEST_TIMEOUT_MS);
     try {
       res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: requestBody }
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: requestBody,
+          signal: timeoutController.signal,
+        }
       );
       lastError = undefined;
       if (res.ok || !RETRY_STATUS_CODES.has(res.status) || attempt === MAX_RETRIES) break;
@@ -85,6 +103,8 @@ async function detectBibTagsInImage(imageBuffer: Buffer): Promise<BibTag[]> {
       res = undefined;
       lastError = err;
       if (attempt === MAX_RETRIES) break;
+    } finally {
+      clearTimeout(timeout);
     }
     await sleep(500 * 2 ** attempt);
   }
