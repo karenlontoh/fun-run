@@ -116,6 +116,9 @@ export type CharityParticipant = {
   full_name: string;
   gender: Gender;
   institution: string;
+  // Race-day check-in, by name search (Fun Walk has no BIB numbers).
+  attended: boolean;
+  attended_at: string | null;
 };
 
 export type RacePhoto = {

@@ -213,6 +213,11 @@ create table if not exists charity_participants (
 alter table charity_participants add column if not exists gender text not null default 'L' check (gender in ('L', 'P'));
 alter table charity_participants add column if not exists institution text not null default '';
 
+-- Fun Walk has no BIB numbers, so race-day check-in happens by name search
+-- instead (see /fun-walk/checkin) rather than the BIB lookup Fun Run uses.
+alter table charity_participants add column if not exists attended boolean not null default false;
+alter table charity_participants add column if not exists attended_at timestamptz;
+
 create index if not exists charity_participants_registration_id_idx on charity_participants(registration_id);
 
 -- The original (full_name, gender)-only version of create_charity_registration
