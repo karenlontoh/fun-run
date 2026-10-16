@@ -73,6 +73,9 @@ export type Participant = {
   // Race-day attendance — separate from checked_in (race pack collection).
   attended: boolean;
   attended_at: string | null;
+  // Doorprize draw — a winner is excluded from future random picks.
+  doorprize_won: boolean;
+  doorprize_won_at: string | null;
 };
 
 export type Registration = {

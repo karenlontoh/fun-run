@@ -2,6 +2,7 @@ import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { AttendanceTable } from "@/app/verify/attendance/AttendanceTable";
+import { DoorprizePicker } from "@/app/verify/attendance/DoorprizePicker";
 import { supabaseServer } from "@/lib/supabase-server";
 import type { Participant } from "@/lib/types";
 
@@ -16,6 +17,10 @@ export default async function AttendancePage() {
     .returns<Participant[]>();
 
   const rows = participants ?? [];
+  const doorprizeWinners = rows
+    .filter((p) => p.doorprize_won)
+    .sort((a, b) => (b.doorprize_won_at ?? "").localeCompare(a.doorprize_won_at ?? ""));
+  const doorprizeEligibleCount = rows.filter((p) => !p.doorprize_won).length;
 
   return (
     <>
@@ -39,6 +44,8 @@ export default async function AttendancePage() {
             <p className="text-xs text-navy/50">Checked In</p>
             <p className="font-display text-2xl text-lime-dark">{rows.length}</p>
           </div>
+
+          <DoorprizePicker initialWinners={doorprizeWinners} initialEligibleCount={doorprizeEligibleCount} />
 
           <AttendanceTable rows={rows} />
         </div>

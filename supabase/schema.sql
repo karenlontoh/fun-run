@@ -73,6 +73,13 @@ create table if not exists participants (
 alter table participants add column if not exists attended boolean not null default false;
 alter table participants add column if not exists attended_at timestamptz;
 
+-- Doorprize winners, tracked separately from attendance so a participant
+-- can be checked in without being eligible for a doorprize pick until the
+-- random-pick button is actually used — and so a winner is excluded from
+-- future picks once drawn.
+alter table participants add column if not exists doorprize_won boolean not null default false;
+alter table participants add column if not exists doorprize_won_at timestamptz;
+
 -- If participants already existed from an earlier version of this schema
 -- (with a shared default sequence), drop that default — bib_number is now
 -- always assigned explicitly per-category inside create_registration below.
