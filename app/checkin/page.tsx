@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { NavBar } from "@/app/components/NavBar";
 import { Footer } from "@/app/components/Footer";
 import { CheckinClient } from "@/app/checkin/CheckinClient";
@@ -16,6 +17,15 @@ export default function CheckinPage() {
           <div className="mt-10">
             <CheckinClient />
           </div>
+          <p className="mt-6 text-center text-sm text-navy/60">
+            Joining the Fun Walk instead?{" "}
+            <Link
+              href="/fun-walk/checkin"
+              className="font-semibold text-navy underline decoration-orange decoration-2 underline-offset-4"
+            >
+              Check in here
+            </Link>
+          </p>
         </div>
       </main>
       <Footer />
