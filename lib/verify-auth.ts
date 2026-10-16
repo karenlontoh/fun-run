@@ -46,7 +46,13 @@ export async function isValidVerifyAuthCookie(cookieValue: string | undefined): 
 // tooling under /verify. Write actions are blocked separately, per API
 // route (see getVerifyRole call sites) — this only gates which *pages*
 // load.
-const RESTRICTED_VERIFY_SEGMENTS = new Set(["race-photos", "fun-walk", "tambah-peserta", "attendance"]);
+const RESTRICTED_VERIFY_SEGMENTS = new Set([
+  "race-photos",
+  "fun-walk",
+  "tambah-peserta",
+  "attendance",
+  "doorprize",
+]);
 
 export function isVolunteerAllowedPath(pathname: string): boolean {
   if (pathname === "/verify") return true;
